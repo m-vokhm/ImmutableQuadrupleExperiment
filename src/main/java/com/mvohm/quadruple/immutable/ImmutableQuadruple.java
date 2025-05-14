@@ -10,12 +10,20 @@ public class ImmutableQuadruple extends Number implements Comparable<ImmutableQu
   private final Quadruple value;
 
   /**
+   * Creates a new {@code ImmutableQuadruple} instance with value of 0.0 .<br>
+   * Actually, same as ImmutableQuadruple.ZERO
+   */
+  public ImmutableQuadruple() {
+    value = new Quadruple();
+  }
+
+  /**
    * Creates a new {@code ImmutableQuadruple} instance with the value of the given {@code ImmutableQuadruple} instance.<br>
    * First creates an empty (zero) instance, then copies the fields of the parameter.
    * to the fields of the new instance
    * @param iqValue the {@code ImmutableQuadruple} value to be assigned to the new instance.
    */
-  public ImmutableQuadruple(ImmutableQuadruple iqValue) {
+  private ImmutableQuadruple(ImmutableQuadruple iqValue) {
     value = new Quadruple(iqValue.value);
   }
 
@@ -60,14 +68,11 @@ public class ImmutableQuadruple extends Number implements Comparable<ImmutableQu
     value = new Quadruple(bdValue);
   }
 
-  private ImmutableQuadruple() {
-    this.value = null;
-  }
-
   private ImmutableQuadruple(Quadruple value) {
     this.value = value;
   }
 
+  public static final ImmutableQuadruple ZERO              = new ImmutableQuadruple();
   public static final ImmutableQuadruple NEGATIVE_INFINITY = new ImmutableQuadruple(Quadruple.negativeInfinity());
   public static final ImmutableQuadruple POSITIVE_INFINITY = new ImmutableQuadruple(Quadruple.positiveInfinity());
   public static final ImmutableQuadruple NaN               = new ImmutableQuadruple(Quadruple.nan());
