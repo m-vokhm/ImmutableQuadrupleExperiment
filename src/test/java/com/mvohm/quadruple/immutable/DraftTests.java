@@ -9,8 +9,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.mvohm.quadruple.ImmutableQuadruple;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.math.BigDecimal;
 
 import static com.mvohm.quadruple.immutable.test.AuxMethods.*;
@@ -27,7 +25,7 @@ import static org.assertj.core.api.Assertions.*;
 public class DraftTests {
 
   @ParameterizedTest
-  @MethodSource(value =  "toConvertFromDouleData")
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toConvertFromDoubleData")
   @DisplayName("Constructor ImmutableQuadruple(double dValue) creates an instanse with value equal to dValue")
   void testConstructorWithDoubleCreatesCorrectValue(double data)  {
     final double expected = data;
@@ -39,7 +37,7 @@ public class DraftTests {
   }
 
   @ParameterizedTest
-  @MethodSource(value =  "toConvertFromLongData")
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toConvertFromLongData")
   @DisplayName("Constructor ImmutableQuadruple(long lValue) creates an instanse with value equal to lValue")
   void testConstructorWithLongCreatesCorrectValue(long data)  {
     final long expected = data;
@@ -51,7 +49,7 @@ public class DraftTests {
   }
 
   @ParameterizedTest
-  @MethodSource(value =  "toConvertFromStringData")
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toConvertFromStringData")
   @DisplayName("Constructor ImmutableQuadruple(String sValue) creates an instanse with value equal to sValue")
   void testConstructorWithStringCreatesCorrectValue(String source, String expected)  {
     final String actual = new ImmutableQuadruple(source).toString();
@@ -66,7 +64,7 @@ public class DraftTests {
   }
 
   @ParameterizedTest
-  @MethodSource(value =  "toConvertFromBigDecimal")
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toConvertFromBigDecimal")
   @DisplayName("Constructor ImmutableQuadruple(BigDecimal bdValue) creates an instanse with value equal to bdValue")
   void testConstructorWithBigDecimalCreatesCorrectValue(BigDecimal source)  {
     final BigDecimal actual = new ImmutableQuadruple(source).bigDecimalValue();
@@ -94,7 +92,7 @@ public class DraftTests {
   }
 
   @ParameterizedTest
-  @MethodSource(value =  "toCompareImmQuadruples")
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareImmQuadruples")
   @DisplayName("compareTo(ImmutableQuadruple other) returns correct results")
   void testCompareToImmutableQuadrupleWorksFine(ImmutableQuadruple q1, ImmutableQuadruple q2, int expected)  {
     final int actual = q1.compareTo(q2);
@@ -107,7 +105,7 @@ public class DraftTests {
   }
 
   @ParameterizedTest
-  @MethodSource(value =  "toCompareQuadruplesWithLongs")
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareQuadruplesWithLongs")
   @DisplayName("compareTo(long other) returns correct results")
   void testCompareToLongWorksFine(ImmutableQuadruple q1, long q2, int expected)  {
     final int actual = q1.compareTo(q2);
@@ -120,7 +118,7 @@ public class DraftTests {
   }
 
   @ParameterizedTest
-  @MethodSource(value =  "toCompareQuadruplesWithDoubles")
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareQuadruplesWithDoubles")
   @DisplayName("compareTo(double other) returns correct results")
   void testCompareToDoubleWorksFine(ImmutableQuadruple q1, double q2, int expected)  {
     final int actual = q1.compareTo(q2);
@@ -131,6 +129,20 @@ public class DraftTests {
     }
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
+
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toTestEquality")
+  @DisplayName("equals(Object obj) returns correct results")
+  void testEquals(ImmutableQuadruple q1, Object q2, boolean expected)  {
+    final boolean actual = q1.equals(q2);
+    final String msg = String.format("Comparing %s with %s, expected %s, actual %s",
+                                      q1, q2, expected, actual);
+    if (expected != actual) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
 
 
 //#######################################################################################

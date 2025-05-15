@@ -3,6 +3,7 @@ package com.mvohm.quadruple.immutable;
 import static com.mvohm.quadruple.immutable.test.AuxMethods.MC_50;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import com.mvohm.quadruple.ImmutableQuadruple;
 
@@ -15,7 +16,7 @@ public class DraftTestData {
 
 
 
-  public static double[] toConvertFromDoubleData() {
+  static double[] toConvertFromDoubleData() {
     return new double[] {
       Double.NEGATIVE_INFINITY,
       Double.POSITIVE_INFINITY,
@@ -37,7 +38,7 @@ public class DraftTestData {
     };
   }
 
-  public static long[] toConvertFromLongData() {
+  static long[] toConvertFromLongData() {
     return new long[] {
       Long.MAX_VALUE,
       Long.MIN_VALUE,
@@ -46,7 +47,7 @@ public class DraftTestData {
     };
   }
 
-  public static String[][] toConvertFromStringData() {
+  static String[][] toConvertFromStringData() {
     return new String[][] {
         {"NEGATIVE_INFINITY",              "-Infinity"},
         {"POSITIVE_INFINITY",              "Infinity"},
@@ -68,7 +69,7 @@ public class DraftTestData {
     };
   }
 
-  private static BigDecimal[] toConvertFromBigDecimal() {
+  static BigDecimal[] toConvertFromBigDecimal() {
     return new BigDecimal[] {
       new BigDecimal( "6.672829482607474308148353774991346115977e-646457032"),
       new BigDecimal( "1.761613051683963353207493149791840285665e+646456993"),
@@ -89,7 +90,8 @@ public class DraftTestData {
   }
 
   static final String SOME_NUMBER = "1.234567890123456789012345678901234567876e-21";
-  static ImmutableQuadruple[] qOperands = new ImmutableQuadruple[] {
+
+  private static ImmutableQuadruple[] qOperands = new ImmutableQuadruple[] {
     ImmutableQuadruple.MAX_VALUE,
     ImmutableQuadruple.NEGATIVE_INFINITY,
     ImmutableQuadruple.POSITIVE_INFINITY,
@@ -128,7 +130,8 @@ public class DraftTestData {
                             multiply(BigDecimal.ONE.add(new BigDecimal(1.8e-39), MC_50), MC_50)),
 
   };
-  static long[] lOperands = new long[] {
+
+  private static long[] lOperands = new long[] {
     Long.MIN_VALUE,
     -12345679, // < -12345678.9
     -12345678, // > -12345678.9
@@ -143,34 +146,36 @@ public class DraftTestData {
     33333334,
     Long.MAX_VALUE,
   };
-  static double[] dOperands = new double[] {
-  Double.NaN,
-  Double.NEGATIVE_INFINITY,
-  -12345679, // < -12345678.9
-  -12345678, // > -12345678.9
-  -33333334,
-  -33333333,
-  -1234,
-  0,
-  Double.MAX_VALUE,
-  Double.MIN_NORMAL,
-  1234,
-  12345678, // < -12345678.9
-  12345679, // > -12345678.9
-  33333333,
-  33333334,
-  1234.567890123456789000000000000000000000,
-  3333.333333333333333333330000000000000000,
 
-  Double.MAX_VALUE,
-  Double.POSITIVE_INFINITY,
+  private static double[] dOperands = new double[] {
+    Double.NaN,
+    Double.NEGATIVE_INFINITY,
+    -12345679, // < -12345678.9
+    -12345678, // > -12345678.9
+    -33333334,
+    -33333333,
+    -1234,
+    0,
+    Double.MAX_VALUE,
+    Double.MIN_NORMAL,
+    1234,
+    12345678, // < -12345678.9
+    12345679, // > -12345678.9
+    33333333,
+    33333334,
+    1234.567890123456789000000000000000000000,
+    3333.333333333333333333330000000000000000,
+
+    Double.MAX_VALUE,
+    Double.POSITIVE_INFINITY,
   };
+
   /**
    * returns a two-dimensional array of test data,
    * each item containing two ImmutableQuadruples to compare and integer expected comparison result.
    * Built of cartesian product of (valuesToCompare * valuesToCompare) and comparisonResults
    */
-  private static Object[] toCompareImmQuadruples() {
+  static Object[] toCompareImmQuadruples() {
     final int size = qOperands.length;
     final Object[][] result = new Object[size * size][];
     for (int i = 0; i < size; i++) {
@@ -184,7 +189,7 @@ public class DraftTestData {
     return result;
   }
 
-  private static Object[] toCompareQuadruplesWithLongs() {
+  static Object[] toCompareQuadruplesWithLongs() {
     final int size1 = qOperands.length;
     final int size2 = lOperands.length;
     final Object[][] result = new Object[size1 * size2][];
@@ -199,7 +204,7 @@ public class DraftTestData {
     return result;
   }
 
-  private static Object[] toCompareQuadruplesWithDoubles() {
+  static Object[] toCompareQuadruplesWithDoubles() {
     final int size1 = qOperands.length;
     final int size2 = dOperands.length;
     final Object[][] result = new Object[size1 * size2][];
@@ -214,7 +219,24 @@ public class DraftTestData {
     return result;
   }
 
-  static int expectedComparisonResult(ImmutableQuadruple q1, ImmutableQuadruple q2) {
+  static Object[] toTestEquality() {
+    final Object[] quadComparisonData = toCompareImmQuadruples();
+    final Object[] quadToDoubleComparisonData = toCompareQuadruplesWithDoubles();
+    final Object[] result = Arrays.copyOf(quadComparisonData, quadComparisonData.length + quadToDoubleComparisonData.length);
+    System.arraycopy(quadToDoubleComparisonData, 0, result, quadComparisonData.length, quadToDoubleComparisonData.length);
+    for (int i = 0; i < result.length; i++) {
+      final Object[] data = (Object[])(result[i]);
+      if (data[1] instanceof ImmutableQuadruple
+          && (int)data[2] == 0) {
+        data[2] = true;
+      } else {
+        data[2] = false;
+      }
+    }
+    return result;
+  }
+
+  private static int expectedComparisonResult(ImmutableQuadruple q1, ImmutableQuadruple q2) {
     if (q1.isNaN()) {
       if (q2.isNaN()) {
         return 0;
@@ -246,7 +268,7 @@ public class DraftTestData {
     return bd1.compareTo(bd2);
   }
 
-  static int expectedComparisonWithLongResult(ImmutableQuadruple q1, Long q2) {
+  private static int expectedComparisonWithLongResult(ImmutableQuadruple q1, Long q2) {
     if (q1.isNaN()) {
       return 1;
     } else if (q1.isInfinite() && !q1.isNegative()) { // None is NaN, +Infinity?
@@ -260,7 +282,7 @@ public class DraftTestData {
     return bd1.compareTo(bd2);
   }
 
-  static int expectedComparisonWithDoubleResult(ImmutableQuadruple q1, double q2) {
+  private static int expectedComparisonWithDoubleResult(ImmutableQuadruple q1, double q2) {
     if (q1.isNaN()) {
       if (Double.isNaN(q2)) {
         return 0;
