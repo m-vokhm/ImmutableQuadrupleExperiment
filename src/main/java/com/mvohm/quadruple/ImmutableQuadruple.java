@@ -1,4 +1,4 @@
-package com.mvohm.quadruple.immutable;
+package com.mvohm.quadruple;
 
 import java.math.BigDecimal;
 import java.util.Random;
@@ -185,9 +185,6 @@ public class ImmutableQuadruple extends Number implements Comparable<ImmutableQu
     return value.bigDecimalValue();
   }
 
-  /** A number of digits to use in the toString() method */
-  private static final int SIGNIFICANT_DIGITS = 40;
-
   /**
    * Returns a decimal string representation of the value of this {@code ImmutableQuadruple}
    * in a scientific (exponential) notation, rounded to 43 digits after point.<br>
@@ -314,7 +311,7 @@ public class ImmutableQuadruple extends Number implements Comparable<ImmutableQu
    */
   @Override
   public int compareTo(ImmutableQuadruple other) {
-    return value.compareMagnitudeTo(other.value);
+    return value.compareTo(other.value);
   }
 
   /**
@@ -340,7 +337,7 @@ public class ImmutableQuadruple extends Number implements Comparable<ImmutableQu
    */
   public int compareTo(double other) {
     return value.compareTo(other);
-  } // public int compareTo(double other) {
+  }
 
   /**
    * Indicates whether the other {@code ImmutableQuadruple} is equal to this one.
@@ -353,14 +350,7 @@ public class ImmutableQuadruple extends Number implements Comparable<ImmutableQu
   public boolean equals(Object obj) {
     if (this == obj) return true;
     if (!(obj instanceof ImmutableQuadruple)) return false;
-    final ImmutableQuadruple other = (ImmutableQuadruple)obj;
-    if (isNaN() && other.isNaN())                       // NaNs are all different
-      return false;
-    return
-       isNegative() == other.isNegative()                       // For Doubles, -0 != 0. Do it the same way
-       && exponent() == other.exponent()
-       && mantHi() == other.mantHi()
-       && mantLo() == other.mantLo();
+    return value.equals(((ImmutableQuadruple)obj).value);
   }
 
   /** Computes a hashcode for this {@code ImmutableQuadruple},

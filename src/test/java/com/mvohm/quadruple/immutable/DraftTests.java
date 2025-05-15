@@ -7,6 +7,8 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.mvohm.quadruple.ImmutableQuadruple;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
@@ -23,79 +25,6 @@ import static org.assertj.core.api.Assertions.*;
  */
 @TestInstance(Lifecycle.PER_CLASS)
 public class DraftTests {
-
-  public static double[] toConvertFromDouleData() {
-    return new double[] {
-      Double.NEGATIVE_INFINITY,
-      Double.POSITIVE_INFINITY,
-      Double.MIN_VALUE,
-      Double.MAX_VALUE,
-      // Double.NaN, // NaN never equals to another NaN
-      1.234567890123456789,
-      3.33333333333333333333333,
-      -1.234567890123456789,
-      -3.33333333333333333333333,
-      1.234567890123456789e37,
-      3.33333333333333333333333e37,
-      -1.234567890123456789e37,
-      -3.33333333333333333333333e37,
-      1.234567890123456789e-37,
-      3.33333333333333333333333e-37,
-      -1.234567890123456789e-37,
-      -3.33333333333333333333333e-37,
-    };
-  }
-
-  public static long[] toConvertFromLongData() {
-    return new long[] {
-      Long.MAX_VALUE,
-      Long.MIN_VALUE,
-      0,
-      1234567890,
-    };
-  }
-
-  public static String[][] toConvertFromStringData() {
-    return new String[][] {
-        {"NEGATIVE_INFINITY",              "-Infinity"},
-        {"POSITIVE_INFINITY",              "Infinity"},
-        {"MIN_VALUE",                      "6.672829482607474308148353774991346115977e-646457032"},
-        {"MAX_VALUE",                      "1.761613051683963353207493149791840285665e+646456993"},
-        {"NaN",                           "NaN"},
-        {"1.234567890123456789",           "1.234567890123456789000000000000000000000e+00"},
-        {"3.33333333333333333333333",      "3.333333333333333333333330000000000000000e+00"},
-        {"-1.234567890123456789",         "-1.234567890123456789000000000000000000000e+00"},
-        {"-3.33333333333333333333333",    "-3.333333333333333333333330000000000000000e+00"},
-        {"1.234567890123456789e37",        "1.234567890123456789000000000000000000000e+37"},
-        {"3.33333333333333333333333e37",   "3.333333333333333333333330000000000000000e+37"},
-        {"-1.234567890123456789e37",      "-1.234567890123456789000000000000000000000e+37"},
-        {"-3.33333333333333333333333e37", "-3.333333333333333333333330000000000000000e+37"},
-        {"1.234567890123456789e-37",       "1.234567890123456789000000000000000000000e-37"},
-        {"3.33333333333333333333333e-37",  "3.333333333333333333333330000000000000000e-37"},
-        {"-1.234567890123456789e-37",     "-1.234567890123456789000000000000000000000e-37"},
-        {"-3.33333333333333333333333e-37","-3.333333333333333333333330000000000000000e-37"},
-    };
-  }
-
-  private static BigDecimal[] toConvertFromBigDecimal() {
-    return new BigDecimal[] {
-      new BigDecimal( "6.672829482607474308148353774991346115977e-646457032"),
-      new BigDecimal( "1.761613051683963353207493149791840285665e+646456993"),
-      new BigDecimal( "1.234567890123456789000000000000000000000e+00"),
-      new BigDecimal( "3.333333333333333333333330000000000000000e+00"),
-      new BigDecimal("-1.234567890123456789000000000000000000000e+00"),
-      new BigDecimal("-3.333333333333333333333330000000000000000e+00"),
-      new BigDecimal( "1.234567890123456789000000000000000000000e+37"),
-      new BigDecimal( "3.333333333333333333333330000000000000000e+37"),
-      new BigDecimal("-1.234567890123456789000000000000000000000e+37"),
-      new BigDecimal("-3.333333333333333333333330000000000000000e+37"),
-      new BigDecimal( "1.234567890123456789000000000000000000000e-37"),
-      new BigDecimal( "3.333333333333333333333330000000000000000e-37"),
-      new BigDecimal("-1.234567890123456789000000000000000000000e-37"),
-      new BigDecimal("-3.333333333333333333333330000000000000000e-37"),
-      new BigDecimal("1.4693679385278593849609206715278070972733319459651e-39"),
-    };
-  }
 
   @ParameterizedTest
   @MethodSource(value =  "toConvertFromDouleData")
@@ -164,5 +93,113 @@ public class DraftTests {
     assertThat(valueIsZero).withFailMessage(msg).isTrue();
   }
 
+  @ParameterizedTest
+  @MethodSource(value =  "toCompareImmQuadruples")
+  @DisplayName("compareTo(ImmutableQuadruple other) returns correct results")
+  void testCompareToImmutableQuadrupleWorksFine(ImmutableQuadruple q1, ImmutableQuadruple q2, int expected)  {
+    final int actual = q1.compareTo(q2);
+    final String msg = String.format("Comparing %s with %s, expected %s, actual %s",
+                                      q1, q2, expected, actual);
+    if (expected != actual) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+  @ParameterizedTest
+  @MethodSource(value =  "toCompareQuadruplesWithLongs")
+  @DisplayName("compareTo(long other) returns correct results")
+  void testCompareToLongWorksFine(ImmutableQuadruple q1, long q2, int expected)  {
+    final int actual = q1.compareTo(q2);
+    final String msg = String.format("Comparing %s with %s, expected %s, actual %s",
+                                      q1, q2, expected, actual);
+    if (expected != actual) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+  @ParameterizedTest
+  @MethodSource(value =  "toCompareQuadruplesWithDoubles")
+  @DisplayName("compareTo(double other) returns correct results")
+  void testCompareToDoubleWorksFine(ImmutableQuadruple q1, double q2, int expected)  {
+    final int actual = q1.compareTo(q2);
+    final String msg = String.format("Comparing %s with %s, expected %s, actual %s",
+                                      q1, q2, expected, actual);
+    if (expected != actual) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+
+//#######################################################################################
+//### Various debugging stuff
+//#######################################################################################
+
+  private static void showLSBs() {
+    final ImmutableQuadruple q1 = new ImmutableQuadruple(DraftTestData.SOME_NUMBER);         //  17
+    final ImmutableQuadruple q2 = new ImmutableQuadruple(new BigDecimal(DraftTestData.SOME_NUMBER). // Non-distinguishable from the previous
+                            multiply(BigDecimal.ONE.add(new BigDecimal(1.2e-39), MC_50), MC_50)); //  18
+    final ImmutableQuadruple q3 = new ImmutableQuadruple(new BigDecimal(DraftTestData.SOME_NUMBER). // Distinguishable from the previous
+                            multiply(BigDecimal.ONE.add(new BigDecimal(1.8e-39), MC_50), MC_50));                    //  19
+
+//    q3 = new ImmutableQuadruple(BigDecimal.ONE.add(new BigDecimal(1.0e-39), MC_50));
+//    q2 = ImmutableQuadruple.MIN_VALUE;
+//    q3 = ImmutableQuadruple.MAX_VALUE;
+    say("q1: %s (%s)", q1, hexStringOf(q1));
+    say("q2: %s (%s)", q2, hexStringOf(q2));
+    say("q3: %s (%s)", q3, hexStringOf(q3));
+  }
+
+  // Positive infinity < NaN ???? Yes! NaN is greater than anything else
+  private static void comareImmQuadNaNtoNaN() {
+    say("comare ImmQuad NaN to NaN");
+    final ImmutableQuadruple d1 = new ImmutableQuadruple(Double.NaN);
+    final ImmutableQuadruple d2 = new ImmutableQuadruple(Double.NaN);
+    say("Equal:   " + (d1.equals(d2)));
+    say("Compare: " + ImmutableQuadruple.compare(d1, d2));
+  }
+
+  private static void comareDoubleNaNtoNaN() {
+    say("comare Double NaN to NaN");
+    final Double d1 = Double.NaN;
+    final Double d2 = Double.NaN;
+    say("Equal:   " + (d1.equals(d2)));       // Wrapper types are considered equal
+    say("Compare: " + Double.compare(d1, d2));
+    say("Primitives:");
+    final double d1_ = d1.doubleValue();
+    final double d2_ = d2.doubleValue();
+    say("Equal:   " + (d1 == d2));            // Primitive types are considered different ...
+    say("Compare: " + Double.compare(d1, d2));
+  }
+
+  private static void comareImmQuadNanInfinity() {
+    say("comare ImmQuad Nan Infinity");
+    final ImmutableQuadruple d1 = new ImmutableQuadruple(Double.NaN);
+    final ImmutableQuadruple d2 = new ImmutableQuadruple(Double.POSITIVE_INFINITY);
+    say("Equal:   " + (d1.equals(d2)));
+    say("Compare: " + ImmutableQuadruple.compare(d1, d2));
+  }
+
+  private static void comareDoubleNanInfinity() {
+    say("comare Double Nan Infinity");
+    final Double d1 = Double.NaN;
+    final Double d2 = Double.POSITIVE_INFINITY;
+    say("Equal:   " + (d1.equals(d2)));
+    say("Compare: " + Double.compare(d1, d2));
+  }
+
+  public static void main(String... args) {
+    comareImmQuadNaNtoNaN();
+    say();
+    comareImmQuadNanInfinity();
+    say();
+    comareDoubleNaNtoNaN();
+    say();
+    comareDoubleNanInfinity();
+    say();
+    showLSBs();
+  }
 
 }

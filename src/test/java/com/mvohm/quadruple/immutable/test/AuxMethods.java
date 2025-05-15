@@ -18,6 +18,8 @@
 
 package com.mvohm.quadruple.immutable.test;
 
+import static com.mvohm.quadruple.immutable.test.AuxMethods.hexStringOf;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -26,6 +28,7 @@ import java.util.Objects;
 import java.util.stream.DoubleStream;
 
 import com.mvohm.quadruple.Quadruple;
+import com.mvohm.quadruple.ImmutableQuadruple;
 
 /**
  * A set of convenience static methods to be used by other classes of the quadruple.test package.
@@ -55,6 +58,8 @@ public class AuxMethods {
   /** Double's exponent bias, that is the exponent of a {@code double} values falling within the range of 1.0d ... 1.999d (values with unbiased exponent = 0) */
   public static final int DOUBLE_EXP_BIAS       = 0x0000_03FF;
 
+  public final static BigDecimal HALF_OF_LSB = new BigDecimal("1.4693679385278593849609206715278070972733319459651e-39");
+
   /** The length of the integer part in an exponential form of a number, including the decimal point e.g. '-1.' for '-1.1234e-35' */
   private static final int INTEGER_PART_LENGTH  = 3;
   /** The length of the exponent part in an exponential form of a number, including 'e', e.g. 'e-35'. for '-1.1234e-35' */
@@ -62,9 +67,8 @@ public class AuxMethods {
 
   private static final int DEFAULT_PRECISION = 50;
 
-  private final static MathContext MC_50 = new MathContext(50, RoundingMode.HALF_EVEN);
+  public final static MathContext MC_50 = new MathContext(50, RoundingMode.HALF_EVEN);
   /** Half of the least significant bit */
-  private final static BigDecimal HALF_OF_LSB = new BigDecimal("1.4693679385278593849609206715278070972733319459651e-39");
 
 
   public static boolean withinPermissibleError(String actual, String expected) {
@@ -145,7 +149,7 @@ public class AuxMethods {
    * @param intValue the value to convert to hexadecimal string
    * @return the hexadecimal string representation of the given int value
    */
-  public static String hexStr(int intValue) {
+  public static String hexStringOf(int intValue) {
     return String.format(
         "%04x_%04x",
         intValue >> 16 & 0xFFFF, intValue & 0xFFFF);
@@ -157,7 +161,7 @@ public class AuxMethods {
 	 * @param longValue the value to convert to hexadecimal string
 	 * @return the hexadecimal string representation of the given long value
 	 */
-  public static String hexStr(long longValue) {
+  public static String hexStringOf(long longValue) {
     return String.format(
         "%04x_%04x_%04x_%04x",
         longValue >> 48 & 0xFFFF, longValue >> 32 & 0xFFFF,
@@ -171,15 +175,23 @@ public class AuxMethods {
    * @param doubleValue the value to convert to hexadecimal string
    * @return the hexadecimal string representation of the given double value
    */
-  public static  String hexStr(double doubleValue) {
+  public static  String hexStringOf(double doubleValue) {
     final long l = Double.doubleToLongBits(doubleValue);
-    String expStr = hexStr((l & DOUBLE_EXP_MASK) >> 52);
+    String expStr = hexStringOf((l & DOUBLE_EXP_MASK) >> 52);
     expStr = expStr.substring(expStr.length() - 3, expStr.length());
-    String mantStr = hexStr(l);
+    String mantStr = hexStringOf(l);
     mantStr = mantStr.substring(mantStr.length() - 16, mantStr.length());
     final String signStr = (l & DOUBLE_SIGN_MASK) == 0? "+" : "-";
     return String.format("%s%s e %s", signStr, mantStr, expStr);
   } // public static  String hexStr(double dValue) {
+
+  public static String hexStringOf(ImmutableQuadruple q) {
+    return String.format("%s %10s %10s e %,14d",
+        (q.isNegative()? "-" : "+"),
+        hexStringOf(q.mantHi()), hexStringOf(q.mantLo()),
+        q.unbiasedExponent()  );
+  }
+
 
   /* ******************************************************************
    * Handling computational errors
