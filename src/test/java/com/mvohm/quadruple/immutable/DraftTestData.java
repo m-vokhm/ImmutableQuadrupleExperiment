@@ -3,7 +3,10 @@ package com.mvohm.quadruple.immutable;
 import static com.mvohm.quadruple.immutable.test.AuxMethods.MC_50;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 import com.mvohm.quadruple.ImmutableQuadruple;
 
@@ -170,6 +173,10 @@ public class DraftTestData {
     Double.POSITIVE_INFINITY,
   };
 
+  static Object[] qOperands() {
+    return qOperands;
+  }
+
   /**
    * returns a two-dimensional array of test data,
    * each item containing two ImmutableQuadruples to compare and integer expected comparison result.
@@ -235,6 +242,63 @@ public class DraftTestData {
     }
     return result;
   }
+
+  public static List<ImmutableQuadruple> adjacentValues() {
+    final List<ImmutableQuadruple> cases = new ArrayList<>();
+
+    final int initialExponent = 0x7FFF_FFFF;
+    final long initialMantLo = 12345L;
+    final long initialMantHi = 0x8765_bad0_0000_0000L;
+
+    // Adjacent values of exponent
+    int exponent = initialExponent - 50;
+    for (int i = 0; i < 100; i++) {
+      exponent++;
+      cases.add(ImmutableQuadruple.construct(false, exponent, initialMantHi, initialMantLo));
+      cases.add(ImmutableQuadruple.construct(true, exponent, initialMantHi, initialMantLo));
+    }
+
+    // Adjacent values of mantHi
+    long mant = initialMantHi;
+    for (int i = 0; i < 100; i++) {
+      mant++;
+      cases.add(ImmutableQuadruple.construct(false, initialExponent, mant, initialMantLo));
+      cases.add(ImmutableQuadruple.construct(true, initialExponent, mant, initialMantLo));
+    }
+
+    // Adjacent values of mantHi
+    mant = initialMantLo;
+    for (int i = 0; i < 100; i++) {
+      mant++;
+      cases.add(ImmutableQuadruple.construct(false, initialExponent, initialMantHi, mant));
+      cases.add(ImmutableQuadruple.construct(true, initialExponent, initialMantHi, mant));
+    }
+
+    return cases;
+  }
+
+  public static List<ImmutableQuadruple> randomValues(int count, int randSeed) {
+    final List<ImmutableQuadruple> cases = new ArrayList<>();
+
+    final Random rand = new Random(randSeed);
+    for (int i = 0; i < count; i++) {
+      cases.add(ImmutableQuadruple.construct(rand.nextBoolean(), rand.nextInt(), rand.nextLong(), rand.nextLong()));
+    }
+
+    return cases;
+  }
+
+  public static Object[][] adjacentPairs() {
+    final List<ImmutableQuadruple> list = adjacentValues();
+    final Object[][] dataSamples = new Object[list.size() -1][];
+    for (int i = 0; i < list.size() - 1; i++) {
+      dataSamples[i] = new ImmutableQuadruple[] { list.get(i), list.get(i + 1) };
+    }
+    return dataSamples;
+  }
+
+  //###########################################################
+  // Private helper methods
 
   private static int expectedComparisonResult(ImmutableQuadruple q1, ImmutableQuadruple q2) {
     if (q1.isNaN()) {

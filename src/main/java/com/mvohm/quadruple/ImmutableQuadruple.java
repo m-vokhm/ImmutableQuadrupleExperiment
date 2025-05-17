@@ -68,6 +68,10 @@ public class ImmutableQuadruple extends Number implements Comparable<ImmutableQu
     value = new Quadruple(bdValue);
   }
 
+  public static ImmutableQuadruple construct(boolean sign, int exponent, long mantHi, long mantLo) {
+    return new ImmutableQuadruple(new Quadruple(sign, exponent, mantHi, mantLo));
+  }
+
   private ImmutableQuadruple(Quadruple value) {
     this.value = value;
   }
