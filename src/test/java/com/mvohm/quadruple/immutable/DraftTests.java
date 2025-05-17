@@ -229,8 +229,16 @@ public class DraftTests {
     if (hash1 == hash2) {
       say(msg);
     }
-    assertThat(hash1).withFailMessage(msg).isNotEqualTo(hash2);
+    assertThat(hash1).withFailMessage(msg).isNotEqualTo(hash2).isEqualTo(hash2);
   }
+
+// Things to test in the next approach
+//  public static int compare(ImmutableQuadruple q1, ImmutableQuadruple q2) {
+//  public int compareMagnitudeTo(ImmutableQuadruple other) {
+//  public static int compareMagnitudes(ImmutableQuadruple q1, ImmutableQuadruple q2) {
+//  public static ImmutableQuadruple max(ImmutableQuadruple q1, ImmutableQuadruple q2) {
+//  public static ImmutableQuadruple min(ImmutableQuadruple q1, ImmutableQuadruple q2) {
+
 
 
 //#######################################################################################
@@ -238,7 +246,7 @@ public class DraftTests {
 //#######################################################################################
 
   /** Returns the number of duplicates in the integer part
-   * and a measure of distribution uniformity in the fractional part
+   * and a measure of the distribution uniformity in the fractional part
    * @param values -- the data to estimate
    * @return the number of duplicates and a measure of distribution uniformity
    */
@@ -284,7 +292,7 @@ public class DraftTests {
   }
 
 //#######################################################################################
-//### Various debugging stuff
+//### Various debugging stuff (to be moved to another class, if needed at all)
 //#######################################################################################
 
   private static void showLSBs() {
