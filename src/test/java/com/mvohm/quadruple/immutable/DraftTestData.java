@@ -297,7 +297,6 @@ public class DraftTestData {
     return dataSamples;
   }
 
-
   public static Object[][] toCompareMagnitudes() {
     final Object[] variousPairs = toCompareImmQuadruples(); // All possible pairs consisting of qOperands
     final int quarterOfSize = variousPairs.length;
@@ -311,6 +310,37 @@ public class DraftTestData {
       fillAQuarter(i, variousPairs, result);
     }
     return result;
+  }
+
+  public static Object[][] toFindMax() {
+    return toFindExtremum(true);
+  }
+
+  public static Object[][] toFindMin() {
+    return toFindExtremum(false);
+  }
+
+  //###########################################################
+  // Private helper methods
+
+  private static Object[][] toFindExtremum(boolean findingMax) {
+    final Object[] variousPairs = toCompareImmQuadruples(); // All possible pairs consisting of qOperands
+    final Object[][] result = new Object[variousPairs.length][];
+
+    for (int i = 0; i < variousPairs.length; i++) {
+      final Object[] pair = (Object[])variousPairs[i];
+      final ImmutableQuadruple q1 = (ImmutableQuadruple)pair[0];
+      final ImmutableQuadruple q2 = (ImmutableQuadruple)pair[1];
+      ImmutableQuadruple extremum;
+      if (findingMax) {
+        extremum = q1.compareTo(q2) >= 0? q1 : q2; // Already tested
+      } else {
+        extremum = q1.compareTo(q2) < 0? q1 : q2; // Already tested
+      }
+      result[i] = new Object[] { q1, q2, extremum };
+    }
+    return result;
+
   }
 
   private static void fillAQuarter(int quarterNumber, Object[] variousPairs, Object[][] result) {
@@ -342,9 +372,6 @@ public class DraftTestData {
     resultItem[2] = compareMagnitude(resultItem[0], resultItem[1]);
     return resultItem;
   }
-
-  //###########################################################
-  // Private helper methods
 
   private static ImmutableQuadruple negativeOf(ImmutableQuadruple q) {
     return q.abs().negate();

@@ -234,8 +234,6 @@ public class DraftTests {
     assertThat(hash1).withFailMessage(msg).isNotEqualTo(hash2);
   }
 
-// Testing public static int compare(ImmutableQuadruple q1, ImmutableQuadruple q2) {
-
   // @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareImmQuadruples")
@@ -249,8 +247,6 @@ public class DraftTests {
     }
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
-
-//  Testing public int compareMagnitudeTo(ImmutableQuadruple other) {
 
   // @Disabled
   @ParameterizedTest
@@ -266,9 +262,6 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-
-//  public static int compareMagnitudes(ImmutableQuadruple q1, ImmutableQuadruple q2) {
-
   // @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareMagnitudes")
@@ -283,10 +276,33 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toFindMax")
+  @DisplayName("max(q1, q2) returns correct value")
+  void testMaxReturnsMax(ImmutableQuadruple q1, ImmutableQuadruple q2, ImmutableQuadruple expected) {
+    final ImmutableQuadruple actual = ImmutableQuadruple.max(q1, q2);
+    final String msg = String.format("max() returned %s for values %s, %s; expected %s",
+                                      actual, q1, q2, expected);
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
 
-//  public static ImmutableQuadruple max(ImmutableQuadruple q1, ImmutableQuadruple q2) {
-//  public static ImmutableQuadruple min(ImmutableQuadruple q1, ImmutableQuadruple q2) {
-
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toFindMin")
+  @DisplayName("min(q1, q2) returns correct value")
+  void testMinReturnsMin(ImmutableQuadruple q1, ImmutableQuadruple q2, ImmutableQuadruple expected) {
+    final ImmutableQuadruple actual = ImmutableQuadruple.min(q1, q2);
+    final String msg = String.format("min() returned %s for values %s, %s; expected %s",
+                                      actual, q1, q2, expected);
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
 
 
 //#######################################################################################
