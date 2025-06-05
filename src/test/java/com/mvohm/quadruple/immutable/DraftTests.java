@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.*;
 
 public class DraftTests {
 
-  // // @Disabledd
+  // @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toConvertFromDoubleData")
   @DisplayName("Constructor ImmutableQuadruple(double dValue) creates an instanse with value equal to dValue")
@@ -102,6 +102,8 @@ public class DraftTests {
     }
     assertThat(valueIsZero).withFailMessage(msg).isTrue();
   }
+
+// Testing public int compareTo(ImmutableQuadruple other) {
 
   // @Disabled
   @ParameterizedTest
@@ -220,7 +222,7 @@ public class DraftTests {
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#adjacentPairs")
   @DisplayName("hashCode() returns different results for values ​​that differ in only one bit ")
-  void testHashCodeEqualityForEqualValues(ImmutableQuadruple q1, ImmutableQuadruple q2)  {
+  void testHashCodeDiffersForAdjacentValues(ImmutableQuadruple q1, ImmutableQuadruple q2)  {
     // Coincidences of hashes for different values is possible, but the probability of this is very low.
     final int hash1 = q1.hashCode();
     final int hash2 = q2.hashCode();
@@ -229,13 +231,59 @@ public class DraftTests {
     if (hash1 == hash2) {
       say(msg);
     }
-    assertThat(hash1).withFailMessage(msg).isNotEqualTo(hash2).isEqualTo(hash2);
+    assertThat(hash1).withFailMessage(msg).isNotEqualTo(hash2);
   }
 
-// Things to test in the next approach
-//  public static int compare(ImmutableQuadruple q1, ImmutableQuadruple q2) {
-//  public int compareMagnitudeTo(ImmutableQuadruple other) {
+// Testing public static int compare(ImmutableQuadruple q1, ImmutableQuadruple q2) {
+
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareImmQuadruples")
+  @DisplayName("compare(q1, q2) returns correct value")
+  void testCompareReturnsCorrectResult(ImmutableQuadruple q1, ImmutableQuadruple q2, int expected) {
+    final int actual = ImmutableQuadruple.compare(q1, q2);
+    final String msg = String.format("compare() returned %s for values %s, %s; expected %s",
+                                      actual, q1, q2, expected);
+    if (actual != expected) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+//  Testing public int compareMagnitudeTo(ImmutableQuadruple other) {
+
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareMagnitudes")
+  @DisplayName("compareMagnitudeTo(q1) returns correct value")
+  void testCompareMagnitudeToReturnsCorrectResult(ImmutableQuadruple q1, ImmutableQuadruple q2, int expected) {
+    final int actual = q1.compareMagnitudeTo(q2);
+    final String msg = String.format("comparecompareMagnitudeTo() returned %s for values %s, %s; expected %s",
+                                      actual, q1, q2, expected);
+    if (actual != expected) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+
 //  public static int compareMagnitudes(ImmutableQuadruple q1, ImmutableQuadruple q2) {
+
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareMagnitudes")
+  @DisplayName("compareMagnitudes(q1, q2) returns correct value")
+  void testCompareMagnitudesReturnsCorrectResult(ImmutableQuadruple q1, ImmutableQuadruple q2, int expected) {
+    final int actual = ImmutableQuadruple.compareMagnitudes(q1, q2);
+    final String msg = String.format("compareMagnitudes() returned %s for values %s, %s; expected %s",
+                                      actual, q1, q2, expected);
+    if (actual != expected) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+
 //  public static ImmutableQuadruple max(ImmutableQuadruple q1, ImmutableQuadruple q2) {
 //  public static ImmutableQuadruple min(ImmutableQuadruple q1, ImmutableQuadruple q2) {
 

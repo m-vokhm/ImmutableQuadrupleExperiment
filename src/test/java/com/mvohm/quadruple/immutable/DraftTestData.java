@@ -297,8 +297,83 @@ public class DraftTestData {
     return dataSamples;
   }
 
+
+  public static Object[][] toCompareMagnitudes() {
+    final Object[] variousPairs = toCompareImmQuadruples(); // All possible pairs consisting of qOperands
+    final int quarterOfSize = variousPairs.length;
+    final int fullSize = quarterOfSize * 4;
+
+    // Size x 4 -- both positive, positive + negative, negative + positive, both negative
+    final Object[][] result = new Object[fullSize][];
+    for (int i = 0; i < 4; i++) {
+      // Fill a quarter of the resulting array with pairs from variousPairs, with corrected sign
+      // and expected result of magnitude comparison
+      fillAQuarter(i, variousPairs, result);
+    }
+    return result;
+  }
+
+  private static void fillAQuarter(int quarterNumber, Object[] variousPairs, Object[][] result) {
+    final int quarterSize = variousPairs.length;
+    int startIdx = quarterNumber * quarterSize;
+    for (int i = 0; i < quarterSize; i++) {
+      result[startIdx++] = changeSignsAndFindExpected(quarterNumber,  variousPairs[i]);
+    }
+  }
+
+  private static Object[] changeSignsAndFindExpected(int quarterNumber, Object aPair) {
+    final Object[] pair = (Object[]) aPair;
+    final ImmutableQuadruple q1 = (ImmutableQuadruple)(pair[0]);
+    final ImmutableQuadruple q2 = (ImmutableQuadruple)(pair[1]);
+    final Object[] resultItem = new Object[3]; // First number, second number, and expected result of comapreMagnitudes
+
+    if ((quarterNumber & 2) != 0) { // The first number must be negative
+      resultItem[0] = negativeOf(q1);
+    } else {
+      resultItem[0] = positiveOf(q1);
+    }
+
+    if ((quarterNumber & 1) != 0) { // The second number must be negative
+      resultItem[1] = negativeOf(q2);
+    } else {
+      resultItem[1] = positiveOf(q2);
+    }
+
+    resultItem[2] = compareMagnitude(resultItem[0], resultItem[1]);
+    return resultItem;
+  }
+
   //###########################################################
   // Private helper methods
+
+  private static ImmutableQuadruple negativeOf(ImmutableQuadruple q) {
+    return q.abs().negate();
+  }
+
+  private static ImmutableQuadruple positiveOf(ImmutableQuadruple q) {
+    return q.abs();
+  }
+
+  private static Integer compareMagnitude(Object q1Obj, Object q2Obj) {
+    final ImmutableQuadruple q1 = (ImmutableQuadruple)q1Obj;
+    final ImmutableQuadruple q2 = (ImmutableQuadruple)q2Obj;
+    if (q1.isNaN()) {
+      return q2.isNaN()? 0 : 1;
+    }
+    if (q2.isNaN()) {
+      return -1;
+    }
+    if (q1.isInfinite()) {
+      return q2.isInfinite()? 0 : 1;
+    }
+    if (q2.isInfinite()) {
+      return -1;
+    }
+
+    final BigDecimal bd1 = (q1.bigDecimalValue()).abs();
+    final BigDecimal bd2 = (q2.bigDecimalValue()).abs();
+    return bd1.compareTo(bd2);
+  }
 
   private static int expectedComparisonResult(ImmutableQuadruple q1, ImmutableQuadruple q2) {
     if (q1.isNaN()) {
