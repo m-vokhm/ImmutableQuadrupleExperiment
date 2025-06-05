@@ -11,10 +11,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import com.mvohm.quadruple.ImmutableQuadruple;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import static com.mvohm.quadruple.immutable.test.AuxMethods.*;
@@ -304,6 +302,46 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
+//************************************************************************
+//******  Yet to be tested
+//************************************************************************
+//
+//  public ImmutableQuadruple add(ImmutableQuadruple summand) {
+//  public ImmutableQuadruple  add(long summand) {
+//  public ImmutableQuadruple  add(double summand) {
+//  public static ImmutableQuadruple add(ImmutableQuadruple op1, ImmutableQuadruple op2) {
+//  public static ImmutableQuadruple add(ImmutableQuadruple op1, long op2) {
+//  public static ImmutableQuadruple add(ImmutableQuadruple op1, double op2) {
+//
+//  public ImmutableQuadruple subtract(ImmutableQuadruple subtrahend) {
+//  public ImmutableQuadruple subtract(long subtrahend) {
+//  public ImmutableQuadruple subtract(double subtrahend) {
+//  public static ImmutableQuadruple subtract(ImmutableQuadruple minuend, ImmutableQuadruple subtrahend) {
+//  public static ImmutableQuadruple subtract(ImmutableQuadruple minuend, long subtrahend) {
+//  public static ImmutableQuadruple subtract(ImmutableQuadruple minuend, double subtrahend) {
+//
+//  public ImmutableQuadruple multiply(ImmutableQuadruple factor) {
+//  public ImmutableQuadruple multiply(long factor) {
+//  public ImmutableQuadruple multiply(double factor) {
+//  public static ImmutableQuadruple multiply(ImmutableQuadruple factor1, ImmutableQuadruple factor2) {
+//  public static ImmutableQuadruple multiply(ImmutableQuadruple factor1, long factor2) {
+//  public static ImmutableQuadruple multiply(ImmutableQuadruple factor1, double factor2) {
+//
+//  public ImmutableQuadruple divide(ImmutableQuadruple divisor) {
+//  public ImmutableQuadruple divide(long divisor) {
+//  public ImmutableQuadruple divide(double divisor) {
+//  public static ImmutableQuadruple divide(ImmutableQuadruple dividend, ImmutableQuadruple divisor) {
+//  public static ImmutableQuadruple divide(ImmutableQuadruple dividend, long divisor) {
+//  public static ImmutableQuadruple divide(ImmutableQuadruple dividend, double divisor) {
+//
+//  public ImmutableQuadruple sqrt() {
+//  public static ImmutableQuadruple sqrt(Quadruple square) {
+//
+//  public ImmutableQuadruple negate() {
+//  public ImmutableQuadruple abs() {
+//  public int signum() {
+//  public static ImmutableQuadruple nextRandom() {
+//  public static ImmutableQuadruple nextRandom(Random rand) {
 
 //#######################################################################################
 //### Private helper methods

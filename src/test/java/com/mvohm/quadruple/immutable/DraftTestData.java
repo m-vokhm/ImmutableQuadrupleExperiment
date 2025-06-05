@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.function.BiFunction;
 
 import com.mvohm.quadruple.ImmutableQuadruple;
 
@@ -173,7 +174,7 @@ public class DraftTestData {
     Double.POSITIVE_INFINITY,
   };
 
-  static Object[] qOperands() {
+  public static Object[] qOperands() {
     return qOperands;
   }
 
@@ -182,57 +183,33 @@ public class DraftTestData {
    * each item containing two ImmutableQuadruples to compare and integer expected comparison result.
    * Built of cartesian product of (valuesToCompare * valuesToCompare) and comparisonResults
    */
-  static Object[] toCompareImmQuadruples() {
-    final int size = qOperands.length;
-    final Object[][] result = new Object[size * size][];
-    for (int i = 0; i < size; i++) {
-      for (int j = 0; j < size; j++) {
-        final int index = i * size + j;
-        result[index] = new Object[] {
-          qOperands[i], qOperands[j], DraftTestData.expectedComparisonResult(qOperands[i], qOperands[j]),
-        };
-      }
-    }
+  public static Object[][] toCompareImmQuadruples() {
+    final Object[][] result = combineQuadruples();
+    supplementWithQuadQuadOperationResults(result, DraftTestData::expectedComparisonResult);
     return result;
   }
 
-  static Object[] toCompareQuadruplesWithLongs() {
-    final int size1 = qOperands.length;
-    final int size2 = lOperands.length;
-    final Object[][] result = new Object[size1 * size2][];
-    for (int i = 0; i < size1; i++) {
-      for (int j = 0; j < size2; j++) {
-        final int index = i * size2 + j;
-        result[index] = new Object[] {
-          qOperands[i], lOperands[j], DraftTestData.expectedComparisonWithLongResult(qOperands[i], lOperands[j]),
-        };
-      }
-    }
+  public static Object[][] toCompareQuadruplesWithLongs() {
+    final Object[][] result = combineQuadruplesWithLongs();
+    supplementWithQuadLongOperationResults(result, DraftTestData::expectedComparisonWithLongResult);
     return result;
   }
 
-  static Object[] toCompareQuadruplesWithDoubles() {
-    final int size1 = qOperands.length;
-    final int size2 = dOperands.length;
-    final Object[][] result = new Object[size1 * size2][];
-    for (int i = 0; i < size1; i++) {
-      for (int j = 0; j < size2; j++) {
-        final int index = i * size2 + j;
-        result[index] = new Object[] {
-          qOperands[i], dOperands[j], DraftTestData.expectedComparisonWithDoubleResult(qOperands[i], dOperands[j]),
-        };
-      }
-    }
+  public static Object[][] toCompareQuadruplesWithDoubles() {
+    final Object[][] result = combineQuadruplesWithDoubles();
+    supplementWithQuadDoubleOperationResults(result, DraftTestData::expectedComparisonWithDoubleResult);
     return result;
   }
 
-  static Object[] toTestEquality() {
-    final Object[] quadComparisonData = toCompareImmQuadruples();
-    final Object[] quadToDoubleComparisonData = toCompareQuadruplesWithDoubles();
-    final Object[] result = Arrays.copyOf(quadComparisonData, quadComparisonData.length + quadToDoubleComparisonData.length);
+  public static Object[] toTestEquality() {
+    final Object[][] quadComparisonData = toCompareImmQuadruples();
+    // q1.equals(q2) checks not only the values ​​of the operands but also their types,
+    // so make an array that contains both ImmutableQuadruple and Double operands
+    final Object[][] quadToDoubleComparisonData = toCompareQuadruplesWithDoubles();
+    final Object[][] result = Arrays.copyOf(quadComparisonData, quadComparisonData.length + quadToDoubleComparisonData.length);
     System.arraycopy(quadToDoubleComparisonData, 0, result, quadComparisonData.length, quadToDoubleComparisonData.length);
-    for (int i = 0; i < result.length; i++) {
-      final Object[] data = (Object[])(result[i]);
+
+    for (final Object [] data: result) {
       if (data[1] instanceof ImmutableQuadruple
           && (int)data[2] == 0) {
         data[2] = true;
@@ -240,41 +217,8 @@ public class DraftTestData {
         data[2] = false;
       }
     }
+
     return result;
-  }
-
-  public static List<ImmutableQuadruple> adjacentValues() {
-    final List<ImmutableQuadruple> cases = new ArrayList<>();
-
-    final int initialExponent = 0x7FFF_FFFF;
-    final long initialMantLo = 12345L;
-    final long initialMantHi = 0x8765_bad0_0000_0000L;
-
-    // Adjacent values of exponent
-    int exponent = initialExponent - 50;
-    for (int i = 0; i < 100; i++) {
-      exponent++;
-      cases.add(ImmutableQuadruple.construct(false, exponent, initialMantHi, initialMantLo));
-      cases.add(ImmutableQuadruple.construct(true, exponent, initialMantHi, initialMantLo));
-    }
-
-    // Adjacent values of mantHi
-    long mant = initialMantHi;
-    for (int i = 0; i < 100; i++) {
-      mant++;
-      cases.add(ImmutableQuadruple.construct(false, initialExponent, mant, initialMantLo));
-      cases.add(ImmutableQuadruple.construct(true, initialExponent, mant, initialMantLo));
-    }
-
-    // Adjacent values of mantHi
-    mant = initialMantLo;
-    for (int i = 0; i < 100; i++) {
-      mant++;
-      cases.add(ImmutableQuadruple.construct(false, initialExponent, initialMantHi, mant));
-      cases.add(ImmutableQuadruple.construct(true, initialExponent, initialMantHi, mant));
-    }
-
-    return cases;
   }
 
   public static List<ImmutableQuadruple> randomValues(int count, int randSeed) {
@@ -322,6 +266,101 @@ public class DraftTestData {
 
   //###########################################################
   // Private helper methods
+
+  private static Object[][] combineQuadruples() {
+    final int size = qOperands.length;
+    final Object[][] result = new Object[size * size][];
+    for (int i = 0; i < size; i++) {
+      for (int j = 0; j < size; j++) {
+        final int index = i * size + j;
+        result[index] = new Object[] {qOperands[i], qOperands[j], null};
+      }
+    }
+    return result;
+  }
+
+  private static Object[][] combineQuadruplesWithLongs() {
+    final int size1 = qOperands.length;
+    final int size2 = lOperands.length;
+    final Object[][] result = new Object[size1 * size2][];
+    for (int i = 0; i < size1; i++) {
+      for (int j = 0; j < size2; j++) {
+        final int index = i * size2 + j;
+        result[index] = new Object[] { qOperands[i], lOperands[j], null };
+      }
+    }
+    return result;
+  }
+
+  private static Object[][] combineQuadruplesWithDoubles() {
+    final int size1 = qOperands.length;
+    final int size2 = dOperands.length;
+    final Object[][] result = new Object[size1 * size2][];
+    for (int i = 0; i < size1; i++) {
+      for (int j = 0; j < size2; j++) {
+        final int index = i * size2 + j;
+        result[index] = new Object[] { qOperands[i], dOperands[j], null };
+      }
+    }
+    return result;
+  }
+
+  private static void supplementWithQuadQuadOperationResults(Object[][] result,
+      BiFunction<ImmutableQuadruple, ImmutableQuadruple, Object> biFunction) {
+    for (final Object[] dataSample: result) {
+      dataSample[2] = biFunction.apply((ImmutableQuadruple)dataSample[0], (ImmutableQuadruple)dataSample[1]);
+    }
+  }
+
+  private static void supplementWithQuadLongOperationResults(Object[][] result,
+      BiFunction<ImmutableQuadruple, Long, Object> biFunction) {
+    for (final Object[] dataSample: result) {
+      dataSample[2] = biFunction.apply((ImmutableQuadruple)dataSample[0], (Long)dataSample[1]);
+    }
+  }
+
+  private static void supplementWithQuadDoubleOperationResults(Object[][] result,
+      BiFunction<ImmutableQuadruple, Double, Object> biFunction) {
+    for (final Object[] dataSample: result) {
+      dataSample[2] = biFunction.apply((ImmutableQuadruple)dataSample[0], (Double)dataSample[1]);
+    }
+  }
+
+  private static List<ImmutableQuadruple> adjacentValues() {
+    final List<ImmutableQuadruple> cases = new ArrayList<>();
+
+    final int initialExponent = 0x7FFF_FFFF;
+    final long initialMantLo = 12345L;
+    final long initialMantHi = 0x8765_bad0_0000_0000L;
+
+    // Adjacent values of exponent
+    int exponent = initialExponent - 50;
+    for (int i = 0; i < 100; i++) {
+      exponent++;
+      cases.add(ImmutableQuadruple.construct(false, exponent, initialMantHi, initialMantLo));
+      cases.add(ImmutableQuadruple.construct(true, exponent, initialMantHi, initialMantLo));
+    }
+
+    // Adjacent values of mantHi
+    long mant = initialMantHi;
+    for (int i = 0; i < 100; i++) {
+      mant++;
+      cases.add(ImmutableQuadruple.construct(false, initialExponent, mant, initialMantLo));
+      cases.add(ImmutableQuadruple.construct(true, initialExponent, mant, initialMantLo));
+    }
+
+    // Adjacent values of mantHi
+    mant = initialMantLo;
+    for (int i = 0; i < 100; i++) {
+      mant++;
+      cases.add(ImmutableQuadruple.construct(false, initialExponent, initialMantHi, mant));
+      cases.add(ImmutableQuadruple.construct(true, initialExponent, initialMantHi, mant));
+    }
+
+    return cases;
+  }
+
+
 
   private static Object[][] toFindExtremum(boolean findingMax) {
     final Object[] variousPairs = toCompareImmQuadruples(); // All possible pairs consisting of qOperands
@@ -448,7 +487,7 @@ public class DraftTestData {
     return bd1.compareTo(bd2);
   }
 
-  private static int expectedComparisonWithDoubleResult(ImmutableQuadruple q1, double q2) {
+  private static int expectedComparisonWithDoubleResult(ImmutableQuadruple q1, Double q2) {
     if (q1.isNaN()) {
       if (Double.isNaN(q2)) {
         return 0;
