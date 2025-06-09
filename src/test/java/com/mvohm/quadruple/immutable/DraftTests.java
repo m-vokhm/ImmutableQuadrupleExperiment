@@ -302,11 +302,33 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
+//  public ImmutableQuadruple add(ImmutableQuadruple summand) {
+
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toAddImmutableQuadruple")
+  @DisplayName("q1.add(q2) returns correct value")
+  void testAddImmutableQuadrupleReturnsCorrectResult(ImmutableQuadruple q1, ImmutableQuadruple q2, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = q1.add(q2);
+    final String msg = String.format("adding %s and %s resulted in %s; expected %s",
+                                    q1, q2, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+
 //************************************************************************
 //******  Yet to be tested
 //************************************************************************
 //
-//  public ImmutableQuadruple add(ImmutableQuadruple summand) {
 //  public ImmutableQuadruple  add(long summand) {
 //  public ImmutableQuadruple  add(double summand) {
 //  public static ImmutableQuadruple add(ImmutableQuadruple op1, ImmutableQuadruple op2) {

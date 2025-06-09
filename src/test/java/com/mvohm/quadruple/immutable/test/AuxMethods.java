@@ -68,6 +68,7 @@ public class AuxMethods {
   private static final int DEFAULT_PRECISION = 50;
 
   public final static MathContext MC_50 = new MathContext(50, RoundingMode.HALF_EVEN);
+  public final static MathContext MC_120 = new MathContext(120, RoundingMode.HALF_EVEN);
   /** Half of the least significant bit */
 
 

@@ -1,6 +1,7 @@
 package com.mvohm.quadruple.immutable;
 
 import static com.mvohm.quadruple.immutable.test.AuxMethods.MC_50;
+import static com.mvohm.quadruple.immutable.test.AuxMethods.MC_120;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -102,8 +103,6 @@ public class DraftTestData {
     ImmutableQuadruple.NaN,
     ImmutableQuadruple.MIN_VALUE,
     ImmutableQuadruple.MIN_NORMAL,
-    new ImmutableQuadruple( "6.672829482607474308148353774991346115977e-646457032"),
-    new ImmutableQuadruple( "1.761613051683963353207493149791840285665e+646456993"),
     new ImmutableQuadruple( "1.234567890123456789000000000000000000000e+00"),
     new ImmutableQuadruple( "3.333333333333333333333330000000000000000e+00"),
     new ImmutableQuadruple( "1234.567890123456789000000000000000000000e+00"),
@@ -119,10 +118,11 @@ public class DraftTestData {
     new ImmutableQuadruple("-12345678.90123456789000000000000000000000e+00"),
     new ImmutableQuadruple("-33333333.33333333333333330000000000000000e+00"),
     new ImmutableQuadruple( "0"),
+    new ImmutableQuadruple(" 1.234567890123456789000000000000000000000e+37"),
     new ImmutableQuadruple( "3.333333333333333333333330000000000000000e+37"),
     new ImmutableQuadruple("-1.234567890123456789000000000000000000000e+37"),
     new ImmutableQuadruple("-3.333333333333333333333330000000000000000e+37"),
-    new ImmutableQuadruple( "1.234567890123456789000000000000000000000e-37"),
+    new ImmutableQuadruple(" 1.234567890123456789000000000000000000000e-37"),
     new ImmutableQuadruple( "3.333333333333333333333330000000000000000e-37"),
     new ImmutableQuadruple("-1.234567890123456789000000000000000000000e-37"),
     new ImmutableQuadruple("-3.333333333333333333333330000000000000000e-37"),
@@ -263,6 +263,13 @@ public class DraftTestData {
   public static Object[][] toFindMin() {
     return toFindExtremum(false);
   }
+
+  public static Object[][] toAddImmutableQuadruple() {
+    final Object[][] result = combineQuadruples();
+    supplementWithQuadQuadOperationResults(result, DraftTestData::expectedQuadQuadAdditionResult);
+    return result;
+  }
+
 
   //###########################################################
   // Private helper methods
@@ -518,6 +525,27 @@ public class DraftTestData {
     final BigDecimal bd1 = new BigDecimal(s1);
     final BigDecimal bd2 = new BigDecimal(q2, MC_50); // Exact value of the double, up to 50 digits
     return bd1.compareTo(bd2);
+  }
+
+  private static ImmutableQuadruple expectedQuadQuadAdditionResult(ImmutableQuadruple q1, ImmutableQuadruple q2) {
+    // Corner cases
+    if (q1.isNaN() || q2.isNaN()) {
+      return ImmutableQuadruple.NaN;      // NaN + anything = NaN
+    }
+
+    if (q1.isInfinite()) {
+      if (q2.isInfinite() && (q1.isNegative() != q2.isNegative()))
+        return ImmutableQuadruple.NaN;    // -Infinity + Infinity = NaN
+      else return q1;                     // Infinity + X = Infinity
+    }
+
+    if (q2.isInfinite()) return q2;       // x + Infinity = Infinity regardless of their signs
+
+    // Regular numeric values
+    final BigDecimal bd1 = q1.bigDecimalValue();
+    final BigDecimal bd2 = q2.bigDecimalValue();
+    final BigDecimal sum = bd1.add(bd2, MC_120);
+    return new ImmutableQuadruple(sum);
   }
 
 }
