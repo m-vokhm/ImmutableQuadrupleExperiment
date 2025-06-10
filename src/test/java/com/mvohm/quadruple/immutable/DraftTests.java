@@ -303,7 +303,6 @@ public class DraftTests {
   }
 
 //  public ImmutableQuadruple add(ImmutableQuadruple summand) {
-
   @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toAddImmutableQuadruple")
@@ -345,7 +344,6 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-
 //  public ImmutableQuadruple  add(double summand) {
   @Disabled
   @ParameterizedTest
@@ -368,7 +366,7 @@ public class DraftTests {
   }
 
 //  public static ImmutableQuadruple add(ImmutableQuadruple op1, ImmutableQuadruple op2) {
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toAddImmutableQuadruple")
   @DisplayName("ImmutableQuadruple.add(q1, q2) returns correct value")
@@ -389,7 +387,7 @@ public class DraftTests {
   }
 
 //  public static ImmutableQuadruple add(ImmutableQuadruple op1, long op2) {
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toAddLong")
   @DisplayName("ImmutableQuadruple.add(q1, Long l) returns correct value")
@@ -431,16 +429,136 @@ public class DraftTests {
   }
 
 
+//  public ImmutableQuadruple subtract(ImmutableQuadruple subtrahend) {
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractImmutableQuadruple")
+  @DisplayName("q1.subtract(q2) returns correct value")
+  void testSubtractImmutableQuadrupleReturnsCorrectResult(ImmutableQuadruple q1, ImmutableQuadruple q2, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = q1.subtract(q2);
+    final String msg = String.format("Subtracting %s from %s resulted in %s; expected %s",
+                                    q2, q1, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+//  public ImmutableQuadruple subtract(long subtrahend) {
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractLong")
+  @DisplayName("q.subtract(Long l) returns correct value")
+  void testSubtractLongReturnsCorrectResult(ImmutableQuadruple q1, Long subtrahend, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = q1.subtract(subtrahend);
+    final String msg = String.format("subtracting %s from %s resulted in %s; expected %s",
+                                      subtrahend, q1, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+//public ImmutableQuadruple subtract(double subtrahend) {
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractDouble")
+  @DisplayName("q.subtract(Double dl) returns correct value")
+  void testSubtractDoubleReturnsCorrectResult(ImmutableQuadruple q1, Double subtrahend, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = q1.subtract(subtrahend);
+    final String msg = String.format("subtracting %s from %s resulted in %s; expected %s",
+                                      subtrahend, q1, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+//public static ImmutableQuadruple subtract(ImmutableQuadruple minuend, ImmutableQuadruple subtrahend) {
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractImmutableQuadruple")
+  @DisplayName("ImmutableQuadruple.subtract(q1, q2) returns correct value")
+  void testSubtractTwoQuadruplesReturnsCorrectResult(ImmutableQuadruple q1, ImmutableQuadruple q2, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = ImmutableQuadruple.subtract(q1, q2);
+    final String msg = String.format("Subtracting %s from %s resulted in %s; expected %s",
+                                    q2, q1, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+//public static ImmutableQuadruple subtract(ImmutableQuadruple minuend, long subtrahend) {
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractLong")
+  @DisplayName("ImmutableQuadruple.subtract(q1, Long l) returns correct value")
+  void testSubtractQuadrupleAndLongReturnsCorrectResult(ImmutableQuadruple q1, Long subtrahend, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = ImmutableQuadruple.subtract(q1, subtrahend);
+    final String msg = String.format("subtracting %s from %s resulted in %s; expected %s",
+                                      subtrahend, q1, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+//public static ImmutableQuadruple subtract(ImmutableQuadruple minuend, double subtrahend) {
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractDouble")
+  @DisplayName("ImmutableQuadruple.subtract(q1, Double dl) returns correct value")
+  void testSubtractQuadruoleAndDoubleReturnsCorrectResult(ImmutableQuadruple q1, Double subtrahend, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = ImmutableQuadruple.subtract(q1, subtrahend);
+    final String msg = String.format("subtracting %s from %s resulted in %s; expected %s",
+                                      subtrahend, q1, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+
 //************************************************************************
 //******  Yet to be tested
 //************************************************************************
-//
-//  public ImmutableQuadruple subtract(ImmutableQuadruple subtrahend) {
-//  public ImmutableQuadruple subtract(long subtrahend) {
-//  public ImmutableQuadruple subtract(double subtrahend) {
-//  public static ImmutableQuadruple subtract(ImmutableQuadruple minuend, ImmutableQuadruple subtrahend) {
-//  public static ImmutableQuadruple subtract(ImmutableQuadruple minuend, long subtrahend) {
-//  public static ImmutableQuadruple subtract(ImmutableQuadruple minuend, double subtrahend) {
 //
 //  public ImmutableQuadruple multiply(ImmutableQuadruple factor) {
 //  public ImmutableQuadruple multiply(long factor) {

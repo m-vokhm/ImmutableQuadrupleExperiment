@@ -282,6 +282,23 @@ public class DraftTestData {
     return result;
   }
 
+  public static Object[][] toSubtractImmutableQuadruple() {
+    final Object[][] result = combineQuadruples();
+    supplementWithQuadQuadOperationResults(result, DraftTestData::expectedQuadQuadSubtractionResult);
+    return result;
+  }
+
+  public static Object[][] toSubtractLong() {
+    final Object[][] result = combineQuadruplesWithLongs();
+    supplementWithQuadLongOperationResults(result, DraftTestData::expectedQuadLongSubtractionResult);
+    return result;
+  }
+
+  public static Object[][] toSubtractDouble() {
+    final Object[][] result = combineQuadruplesWithDoubles();
+    supplementWithQuadDoubleOperationResults(result, DraftTestData::expectedQuadDoubleSubtractionResult);
+    return result;
+  }
 
   //###########################################################
   // Private helper methods
@@ -607,6 +624,85 @@ public class DraftTestData {
     final BigDecimal bd2 = new BigDecimal(doubleSummand, MC_120);
 
     final BigDecimal sum = bd1.add(bd2, MC_120);
+    return new ImmutableQuadruple(sum);
+  }
+
+  private static ImmutableQuadruple expectedQuadQuadSubtractionResult(ImmutableQuadruple q1, ImmutableQuadruple q2) {
+    // Corner cases
+    if (q1.isNaN() || q2.isNaN()) {
+      return ImmutableQuadruple.NaN;      // NaN + anything = NaN
+    }
+
+    if (q1.isInfinite()) {
+      if (q2.isInfinite() && (q1.isNegative() != q2.isNegative())) { // Both infinite, different signs
+        return q1;                      // -Inf - Inf = -Inf, +Inf - (-Inf) = +Inf
+      } else if (q2.isInfinite()) {     // Same sign
+        return ImmutableQuadruple.NaN;  // -Inf - (-Inf) = NaN, +Inf - (+Inf) = NaN
+      } else {
+        return q1;                      // Infinity - x = infinity
+      }
+    }
+
+    if (q2.isInfinite()) return q2.negate(); // x - Inf = -Inf, x - (-Inf) = +Inf
+
+    // Regular numeric values
+    final BigDecimal bd1 = q1.bigDecimalValue();
+    final BigDecimal bd2 = q2.bigDecimalValue();
+    final BigDecimal sum = bd1.subtract(bd2, MC_120);
+    return new ImmutableQuadruple(sum);
+  }
+
+  private static ImmutableQuadruple expectedQuadLongSubtractionResult(ImmutableQuadruple q1, Long longSubtrahend) {
+    // Corner cases
+    if (q1.isNaN()) {
+      return ImmutableQuadruple.NaN;      // NaN - anything = NaN
+    }
+
+    if (q1.isInfinite()) {
+      return q1;                     // Infinity - X = Infinity
+    }
+
+    // Regular numeric values
+    final BigDecimal bd1 = q1.bigDecimalValue();
+    final BigDecimal bd2 = BigDecimal.valueOf(longSubtrahend);
+    final BigDecimal sum = bd1.subtract(bd2, MC_120);
+    return new ImmutableQuadruple(sum);
+  }
+
+  private static ImmutableQuadruple expectedQuadDoubleSubtractionResult(ImmutableQuadruple q1, Double doubleSubtrahend) {
+    // Corner cases
+    if (q1.isNaN() || doubleSubtrahend.isNaN()) {
+      return ImmutableQuadruple.NaN;      // NaN - anything = NaN
+    }
+
+    if (q1.isInfinite()) {
+      if (doubleSubtrahend.isInfinite() && (q1.isNegative() != (doubleSubtrahend < 0))) { // Both infinite, different signs
+        return q1;                      // -Inf - Inf = -Inf, +Inf - (-Inf) = +Inf
+      } else if (doubleSubtrahend.isInfinite()) {     // Same sign
+        return ImmutableQuadruple.NaN;  // -Inf - (-Inf) = NaN, +Inf - (+Inf) = NaN
+      } else {
+        return q1;                      // Infinity - x = infinity
+      }
+    }
+
+    if (doubleSubtrahend.isInfinite()) {
+      if (doubleSubtrahend < 0) {
+        return ImmutableQuadruple.POSITIVE_INFINITY; // x - (-Inf) = +Inf
+      } else {
+        return ImmutableQuadruple.NEGATIVE_INFINITY; // x - Inf = -Inf
+      }
+    }
+
+    // Regular numeric values
+    final BigDecimal bd1 = q1.bigDecimalValue();
+
+    // final BigDecimal bd2 = BigDecimal.valueOf(doubleSummand);
+    /* We expect the addition to use not the string representation (rounded),
+     * but the exact value of the Double summand (which in general cannot be
+     * expressed exactly as a finite decimal number).     */
+    final BigDecimal bd2 = new BigDecimal(doubleSubtrahend, MC_120);
+
+    final BigDecimal sum = bd1.subtract(bd2, MC_120);
     return new ImmutableQuadruple(sum);
   }
 

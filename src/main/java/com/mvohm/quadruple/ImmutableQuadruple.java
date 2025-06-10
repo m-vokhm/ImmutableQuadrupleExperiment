@@ -7,6 +7,7 @@ import com.mvohm.quadruple.Quadruple;
 
 public class ImmutableQuadruple extends Number implements Comparable<ImmutableQuadruple> {
 
+  private static final long serialVersionUID = 1L;
   private final Quadruple value;
 
   /**
