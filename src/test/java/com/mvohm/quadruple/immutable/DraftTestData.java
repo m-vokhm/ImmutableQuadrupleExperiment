@@ -270,6 +270,18 @@ public class DraftTestData {
     return result;
   }
 
+  public static Object[][] toAddLong() {
+    final Object[][] result = combineQuadruplesWithLongs();
+    supplementWithQuadLongOperationResults(result, DraftTestData::expectedQuadLongAdditionResult);
+    return result;
+  }
+
+  public static Object[][] toAddDouble() {
+    final Object[][] result = combineQuadruplesWithDoubles();
+    supplementWithQuadDoubleOperationResults(result, DraftTestData::expectedQuadDoubleAdditionResult);
+    return result;
+  }
+
 
   //###########################################################
   // Private helper methods
@@ -544,6 +556,56 @@ public class DraftTestData {
     // Regular numeric values
     final BigDecimal bd1 = q1.bigDecimalValue();
     final BigDecimal bd2 = q2.bigDecimalValue();
+    final BigDecimal sum = bd1.add(bd2, MC_120);
+    return new ImmutableQuadruple(sum);
+  }
+
+  private static ImmutableQuadruple expectedQuadLongAdditionResult(ImmutableQuadruple q1, Long longSummand) {
+    // Corner cases
+    if (q1.isNaN()) {
+      return ImmutableQuadruple.NaN;      // NaN + anything = NaN
+    }
+
+    if (q1.isInfinite()) {
+      return q1;                     // Infinity + X = Infinity
+    }
+
+    // Regular numeric values
+    final BigDecimal bd1 = q1.bigDecimalValue();
+    final BigDecimal bd2 = BigDecimal.valueOf(longSummand);
+    final BigDecimal sum = bd1.add(bd2, MC_120);
+    return new ImmutableQuadruple(sum);
+  }
+
+  private static ImmutableQuadruple expectedQuadDoubleAdditionResult(ImmutableQuadruple q1, Double doubleSummand) {
+    // Corner cases
+    if (q1.isNaN() || doubleSummand.isNaN()) {
+      return ImmutableQuadruple.NaN;      // NaN + anything = NaN
+    }
+
+    if (q1.isInfinite()) {
+      if (doubleSummand.isInfinite() && (q1.isNegative() != (doubleSummand < 0)))
+        return ImmutableQuadruple.NaN;    // -Infinity + Infinity = NaN
+      else return q1;                     // Infinity + X = Infinity
+    }
+
+    if (doubleSummand.isInfinite()) {
+      if (doubleSummand < 0) {
+        return ImmutableQuadruple.NEGATIVE_INFINITY;
+      } else {
+        return ImmutableQuadruple.POSITIVE_INFINITY;
+      }
+    }
+
+    // Regular numeric values
+    final BigDecimal bd1 = q1.bigDecimalValue();
+
+    // final BigDecimal bd2 = BigDecimal.valueOf(doubleSummand);
+    /* We expect the addition to use not the string representation (rounded),
+     * but the exact value of the Double summand (which in general cannot be
+     * expressed exactly as a finite decimal number).     */
+    final BigDecimal bd2 = new BigDecimal(doubleSummand, MC_120);
+
     final BigDecimal sum = bd1.add(bd2, MC_120);
     return new ImmutableQuadruple(sum);
   }

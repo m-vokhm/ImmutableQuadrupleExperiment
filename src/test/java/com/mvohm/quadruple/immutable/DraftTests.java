@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.*;
 
 public class DraftTests {
 
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toConvertFromDoubleData")
   @DisplayName("Constructor ImmutableQuadruple(double dValue) creates an instanse with value equal to dValue")
@@ -42,7 +42,7 @@ public class DraftTests {
         isEqualTo(actual);
   }
 
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toConvertFromLongData")
   @DisplayName("Constructor ImmutableQuadruple(long lValue) creates an instanse with value equal to lValue")
@@ -55,7 +55,7 @@ public class DraftTests {
         isEqualTo(actual);
   }
 
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toConvertFromStringData")
   @DisplayName("Constructor ImmutableQuadruple(String sValue) creates an instanse with value equal to sValue")
@@ -71,7 +71,7 @@ public class DraftTests {
     assertThat(areOK).withFailMessage(msg).isTrue();
   }
 
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toConvertFromBigDecimal")
   @DisplayName("Constructor ImmutableQuadruple(BigDecimal bdValue) creates an instanse with value equal to bdValue")
@@ -87,7 +87,7 @@ public class DraftTests {
     assertThat(areOK).withFailMessage(msg).isTrue();
   }
 
-  // @Disabled
+  @Disabled
   @Test
   @DisplayName("Constructor ImmutableQuadruple() creates an instanse with value of 0")
   void testConstructorWithoutParamsCreatesZeroValue()  {
@@ -103,7 +103,7 @@ public class DraftTests {
 
 // Testing public int compareTo(ImmutableQuadruple other) {
 
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareImmQuadruples")
   @DisplayName("compareTo(ImmutableQuadruple other) returns correct results")
@@ -117,7 +117,7 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareQuadruplesWithLongs")
   @DisplayName("compareTo(long other) returns correct results")
@@ -131,7 +131,7 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareQuadruplesWithDoubles")
   @DisplayName("compareTo(double other) returns correct results")
@@ -145,7 +145,7 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toTestEquality")
   @DisplayName("equals(Object obj) returns correct results")
@@ -159,7 +159,7 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#qOperands")
   @DisplayName("hashCode() returns equal results for equal values")
@@ -181,7 +181,7 @@ public class DraftTests {
   private static final int RAND_SEED = 12345;
   private static final double MILLION = 1e6;
 
-  // @Disabled
+  @Disabled
   @Test
   @DisplayName("hashCode() produces reasonable distribution for random values")
   void testHashCodeDistributionForRandomValues()  {
@@ -216,7 +216,7 @@ public class DraftTests {
     assertThat(uniformity).withFailMessage(msg2).isGreaterThanOrEqualTo(PERMITTED_UNIFORMITY);
   }
 
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#adjacentPairs")
   @DisplayName("hashCode() returns different results for values ​​that differ in only one bit ")
@@ -232,7 +232,7 @@ public class DraftTests {
     assertThat(hash1).withFailMessage(msg).isNotEqualTo(hash2);
   }
 
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareImmQuadruples")
   @DisplayName("compare(q1, q2) returns correct value")
@@ -246,7 +246,7 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareMagnitudes")
   @DisplayName("compareMagnitudeTo(q1) returns correct value")
@@ -260,7 +260,7 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareMagnitudes")
   @DisplayName("compareMagnitudes(q1, q2) returns correct value")
@@ -274,7 +274,7 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toFindMax")
   @DisplayName("max(q1, q2) returns correct value")
@@ -288,7 +288,7 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toFindMin")
   @DisplayName("min(q1, q2) returns correct value")
@@ -304,7 +304,7 @@ public class DraftTests {
 
 //  public ImmutableQuadruple add(ImmutableQuadruple summand) {
 
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toAddImmutableQuadruple")
   @DisplayName("q1.add(q2) returns correct value")
@@ -324,16 +324,116 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
+//  public ImmutableQuadruple  add(long summand) {
+  @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toAddLong")
+  @DisplayName("q.add(Long l) returns correct value")
+  void testAddLongReturnsCorrectResult(ImmutableQuadruple q1, Long summand, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = q1.add(summand);
+    final String msg = String.format("adding %s and %s resulted in %s; expected %s",
+                                    q1, summand, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+
+//  public ImmutableQuadruple  add(double summand) {
+  @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toAddDouble")
+  @DisplayName("q.add(Double dl) returns correct value")
+  void testAddDoubleReturnsCorrectResult(ImmutableQuadruple q1, Double summand, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = q1.add(summand);
+    final String msg = String.format("adding %s and %s resulted in %s; expected %s",
+                                    q1, summand, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+//  public static ImmutableQuadruple add(ImmutableQuadruple op1, ImmutableQuadruple op2) {
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toAddImmutableQuadruple")
+  @DisplayName("ImmutableQuadruple.add(q1, q2) returns correct value")
+  void testAddTwoQuadruoplesReturnsCorrectResult(ImmutableQuadruple q1, ImmutableQuadruple q2, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = ImmutableQuadruple.add(q1, q2);
+    final String msg = String.format("adding %s and %s resulted in %s; expected %s",
+                                    q1, q2, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+//  public static ImmutableQuadruple add(ImmutableQuadruple op1, long op2) {
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toAddLong")
+  @DisplayName("ImmutableQuadruple.add(q1, Long l) returns correct value")
+  void testAddQuadrupleAndLongReturnsCorrectResult(ImmutableQuadruple q1, Long summand, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = ImmutableQuadruple.add(q1, summand);
+    final String msg = String.format("adding %s and %s resulted in %s; expected %s",
+                                      q1, summand, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, // not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+//  public static ImmutableQuadruple add(ImmutableQuadruple op1, double op2) {
+  @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toAddDouble")
+  @DisplayName("ImmutableQuadruple.add(q1, Double dl) returns correct value")
+  void testAddQuadrupleAndDoubleReturnsCorrectResult(ImmutableQuadruple q1, Double summand, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = q1.add(summand);
+    final String msg = String.format("adding %s and %s resulted in %s; expected %s",
+                                    q1, summand, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
 
 //************************************************************************
 //******  Yet to be tested
 //************************************************************************
-//
-//  public ImmutableQuadruple  add(long summand) {
-//  public ImmutableQuadruple  add(double summand) {
-//  public static ImmutableQuadruple add(ImmutableQuadruple op1, ImmutableQuadruple op2) {
-//  public static ImmutableQuadruple add(ImmutableQuadruple op1, long op2) {
-//  public static ImmutableQuadruple add(ImmutableQuadruple op1, double op2) {
 //
 //  public ImmutableQuadruple subtract(ImmutableQuadruple subtrahend) {
 //  public ImmutableQuadruple subtract(long subtrahend) {
