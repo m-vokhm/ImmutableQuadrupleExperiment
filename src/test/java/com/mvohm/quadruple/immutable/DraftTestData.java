@@ -318,6 +318,24 @@ public class DraftTestData {
     return result;
   }
 
+  public static Object[][] toDivideImmutableQuadruple() {
+    final Object[][] result = combineQuadruples();
+    supplementWithQuadQuadOperationResults(result, DraftTestData::expectedQuadQuadDivisionResult);
+    return result;
+  }
+
+  public static Object[][] toDivideLong() {
+    final Object[][] result = combineQuadruplesWithLongs();
+    supplementWithQuadLongOperationResults(result, DraftTestData::expectedQuadLongDivisionResult);
+    return result;
+  }
+
+  public static Object[][] toDivideDouble() {
+    final Object[][] result = combineQuadruplesWithDoubles();
+    supplementWithQuadDoubleOperationResults(result, DraftTestData::expectedQuadDoubleDivisionResult);
+    return result;
+  }
+
   //###########################################################
   // Private helper methods
 
@@ -413,8 +431,6 @@ public class DraftTestData {
 
     return cases;
   }
-
-
 
   private static Object[][] toFindExtremum(boolean findingMax) {
     final Object[] variousPairs = toCompareImmQuadruples(); // All possible pairs consisting of qOperands
@@ -822,7 +838,6 @@ public class DraftTestData {
       }
     }
 
-
     // Regular numeric values
     final BigDecimal bd1 = q1.bigDecimalValue();
 
@@ -836,6 +851,151 @@ public class DraftTestData {
     final ImmutableQuadruple result = new ImmutableQuadruple(product);
     // If the signs are different, the result is negative, even if it's 0
     if (result.isZero() && (q1.isNegative() != (doubleFactor < 0))) {
+      return new ImmutableQuadruple("-0");
+    }
+    return new ImmutableQuadruple(product);
+  }
+
+  private static ImmutableQuadruple expectedQuadQuadDivisionResult(ImmutableQuadruple q1, ImmutableQuadruple q2) {
+    // Corner cases
+    if (q1.isNaN() || q2.isNaN()) {
+      return ImmutableQuadruple.NaN;      // NaN / anything = NaN
+    }
+
+    if (q1.isInfinite()) {
+      if (q2.isInfinite()) {
+        return ImmutableQuadruple.NaN;     // Infinity / Infinity = NaN
+      }
+      return (q1.isNegative() == q2.isNegative()) ?   // (+/-)Infinity / x =
+        ImmutableQuadruple.POSITIVE_INFINITY:      //   Infinity, if the signs are the same
+        ImmutableQuadruple.NEGATIVE_INFINITY;      //   -Infinity, if the signs are different
+    }
+
+    if (q1.isZero()) {
+      if (q2.isZero()) {
+        return ImmutableQuadruple.NaN;    // 0 / 0 = NaN
+      }
+      return (q1.isNegative() == q2.isNegative())?  // 0 / x =
+        ImmutableQuadruple.ZERO :                 //   0, if the signs are the same
+        new ImmutableQuadruple(-0.0);             //   -0, if the signs are different
+    }
+
+    if (q2.isInfinite()) {
+      return q1.isNegative() == q2.isNegative()?  // x / Infinity =
+          ImmutableQuadruple.ZERO :               //   0, if the signs are the same
+          new ImmutableQuadruple(-0.0)  ;         //   -0, if the signs are different
+    }
+
+    if (q2.isZero()) {
+      return q1.isNegative() == q2.isNegative()?  // x / 0 =
+          ImmutableQuadruple.POSITIVE_INFINITY:   //   Infinity, if the signs are the same
+          ImmutableQuadruple.NEGATIVE_INFINITY;   //   -Infinity, if the signs are different
+    }
+
+    // Regular numeric values
+    final BigDecimal bd1 = q1.bigDecimalValue();
+    final BigDecimal bd2 = q2.bigDecimalValue();
+    final BigDecimal quotient = bd1.divide(bd2, MC_120);
+    final ImmutableQuadruple result = new ImmutableQuadruple(quotient);
+
+    // If the signs are different, the result is negative, even if it's 0
+    if (result.isZero() && (q1.isNegative() != q2.isNegative())) {
+      return new ImmutableQuadruple("-0");
+    }
+    return result;
+  }
+
+  private static ImmutableQuadruple expectedQuadLongDivisionResult(ImmutableQuadruple q1, Long longDivisor) {
+    // Corner cases
+    if (q1.isNaN()) {
+      return ImmutableQuadruple.NaN;      // NaN / anything = NaN
+    }
+
+    if (q1.isInfinite()) {
+      return (q1.isNegative() == (longDivisor < 0)) ?   // (+/-)Infinity / x =
+        ImmutableQuadruple.POSITIVE_INFINITY :    //   Infinity, if the signs are the same
+        ImmutableQuadruple.NEGATIVE_INFINITY;     //   -Infinity, if the signs are different
+    }
+
+    if (q1.isZero()) {
+      if (longDivisor == 0) {
+        return ImmutableQuadruple.NaN;            // 0 / 0 = NaN
+      }
+      return (q1.isNegative() == (longDivisor < 0))?  // 0 / x =
+        ImmutableQuadruple.ZERO :                 //   0, if the signs are the same
+        new ImmutableQuadruple(-0.0) ;            //   -0, if the signs are different
+    }
+
+    if (longDivisor == 0) {
+      return q1.isNegative()?                     // x / 0 =
+          ImmutableQuadruple.NEGATIVE_INFINITY:   //   Infinity, if the dividend is positive
+          ImmutableQuadruple.POSITIVE_INFINITY;   //   -Infinity, if the dividend is negative
+    }
+
+    // Regular numeric values
+    final BigDecimal bd1 = q1.bigDecimalValue();
+    final BigDecimal bd2 = BigDecimal.valueOf(longDivisor);
+    final BigDecimal quotient = bd1.divide(bd2, MC_120);
+    final ImmutableQuadruple result = new ImmutableQuadruple(quotient);
+
+    // If the signs are different, the result is negative, even if it's 0
+    if (result.isZero()) {
+      if (q1.isNegative() != (longDivisor < 0)) {
+        return new ImmutableQuadruple("-0");
+      }
+    }
+    return result;
+  }
+
+  private static ImmutableQuadruple expectedQuadDoubleDivisionResult(ImmutableQuadruple q1, Double doubleDivisor) {
+    // Corner cases
+    if (q1.isNaN() || doubleDivisor.isNaN()) {
+      return ImmutableQuadruple.NaN;      // NaN / anything = NaN
+    }
+
+    if (q1.isInfinite()) {
+      if (doubleDivisor.isInfinite()) {
+        return ImmutableQuadruple.NaN;     // Infinity / Infinity = NaN
+      }
+      return (q1.isNegative() == doubleDivisor < 0) ?   // (+/-)Infinity / x =
+        ImmutableQuadruple.POSITIVE_INFINITY:      //   Infinity, if the signs are the same
+        ImmutableQuadruple.NEGATIVE_INFINITY;      //   -Infinity, if the signs are different
+    }
+
+    if (q1.isZero()) {
+      if (doubleDivisor == 0) {
+        return ImmutableQuadruple.NaN;    // 0 / 0 = NaN
+      }
+      return (q1.isNegative() == doubleDivisor < 0)?  // 0 / x =
+        ImmutableQuadruple.ZERO :                 //   0, if the signs are the same
+        new ImmutableQuadruple(-0.0);             //   -0, if the signs are different
+    }
+
+    if (doubleDivisor.isInfinite()) {
+      return q1.isNegative() == doubleDivisor < 0?  // x / Infinity =
+          ImmutableQuadruple.ZERO :               //   0, if the signs are the same
+          new ImmutableQuadruple(-0.0)  ;         //   -0, if the signs are different
+    }
+
+    if (doubleDivisor == 0) {
+      return q1.isNegative() == doubleDivisor < 0?  // x / 0 =
+          ImmutableQuadruple.POSITIVE_INFINITY:   //   Infinity, if the signs are the same
+          ImmutableQuadruple.NEGATIVE_INFINITY;   //   -Infinity, if the signs are different
+    }
+
+    // Regular numeric values
+    final BigDecimal bd1 = q1.bigDecimalValue();
+
+    // final BigDecimal bd2 = BigDecimal.valueOf(doubleSummand);
+    /* We expect the addition to use not the string representation (rounded),
+     * but the exact value of the Double summand (which in general cannot be
+     * expressed exactly as a finite decimal number).     */
+    final BigDecimal bd2 = new BigDecimal(doubleDivisor, MC_120);
+
+    final BigDecimal product = bd1.divide(bd2, MC_120);
+    final ImmutableQuadruple result = new ImmutableQuadruple(product);
+    // If the signs are different, the result is negative, even if it's 0
+    if (result.isZero() && (q1.isNegative() != (doubleDivisor < 0))) {
       return new ImmutableQuadruple("-0");
     }
     return new ImmutableQuadruple(product);
