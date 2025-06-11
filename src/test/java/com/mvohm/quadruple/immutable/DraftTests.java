@@ -430,7 +430,7 @@ public class DraftTests {
 
 
 //  public ImmutableQuadruple subtract(ImmutableQuadruple subtrahend) {
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractImmutableQuadruple")
   @DisplayName("q1.subtract(q2) returns correct value")
@@ -451,7 +451,7 @@ public class DraftTests {
   }
 
 //  public ImmutableQuadruple subtract(long subtrahend) {
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractLong")
   @DisplayName("q.subtract(Long l) returns correct value")
@@ -472,7 +472,7 @@ public class DraftTests {
   }
 
 //public ImmutableQuadruple subtract(double subtrahend) {
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractDouble")
   @DisplayName("q.subtract(Double dl) returns correct value")
@@ -493,7 +493,7 @@ public class DraftTests {
   }
 
 //public static ImmutableQuadruple subtract(ImmutableQuadruple minuend, ImmutableQuadruple subtrahend) {
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractImmutableQuadruple")
   @DisplayName("ImmutableQuadruple.subtract(q1, q2) returns correct value")
@@ -514,7 +514,7 @@ public class DraftTests {
   }
 
 //public static ImmutableQuadruple subtract(ImmutableQuadruple minuend, long subtrahend) {
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractLong")
   @DisplayName("ImmutableQuadruple.subtract(q1, Long l) returns correct value")
@@ -535,7 +535,7 @@ public class DraftTests {
   }
 
 //public static ImmutableQuadruple subtract(ImmutableQuadruple minuend, double subtrahend) {
-  // @Disabled
+  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractDouble")
   @DisplayName("ImmutableQuadruple.subtract(q1, Double dl) returns correct value")
@@ -555,17 +555,135 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
+//public ImmutableQuadruple multiply(ImmutableQuadruple factor) {
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toMultiplyImmutableQuadruple")
+  @DisplayName("q1.multiply(q2) returns correct value")
+  void testMultiplyImmutableQuadrupleReturnsCorrectResult(ImmutableQuadruple q1, ImmutableQuadruple q2, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = q1.multiply(q2);
+    final String msg = String.format("Multiplying %s by %s resulted in %s; expected %s",
+                                    q1, q2, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+//public ImmutableQuadruple multiply(long factor) {
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toMultiplyLong")
+  @DisplayName("q.multiply(Long l) returns correct value")
+  void testMultiplyLongReturnsCorrectResult(ImmutableQuadruple q1, Long factor, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = q1.multiply(factor);
+    final String msg = String.format("Multiplying %s by %s resulted in %s; expected %s",
+                                      q1, factor, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+//public ImmutableQuadruple multiply(double factor) {
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toMultiplyDouble")
+  @DisplayName("q.multiply(Double d) returns correct value")
+  void testMultiplyDoubleReturnsCorrectResult(ImmutableQuadruple q1, Double factor, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = q1.multiply(factor);
+    final String msg = String.format("Multiplying %s by %s resulted in %s; expected %s",
+                                      q1, factor, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+//public static ImmutableQuadruple multiply(ImmutableQuadruple factor1, ImmutableQuadruple factor2) {
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toMultiplyImmutableQuadruple")
+  @DisplayName("ImmutableQuadruple.multiply(q1, q2) returns correct value")
+  void testMultiplyTwoQuadruplesReturnsCorrectResult(ImmutableQuadruple q1, ImmutableQuadruple q2, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = ImmutableQuadruple.multiply(q1, q2);
+    final String msg = String.format("Multiplying %s by %s resulted in %s; expected %s",
+                                    q1, q2, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+//public static ImmutableQuadruple multiply(ImmutableQuadruple factor1, long factor2) {
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toMultiplyLong")
+  @DisplayName("ImmutableQuadruple.multiply(q1, Long l) returns correct value")
+  void testMultiplyQuadrupleAndLongReturnsCorrectResult(ImmutableQuadruple q1, Long factor, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = ImmutableQuadruple.multiply(q1, factor);
+    final String msg = String.format("Multiplying %s by %s resulted in %s; expected %s",
+                                      q1, factor, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+//public static ImmutableQuadruple multiply(ImmutableQuadruple factor1, double factor2) {
+  // @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toMultiplyDouble")
+  @DisplayName("ImmutableQuadruple.multiply(q1, Double d) returns correct value")
+  void testMultiplyQuadrupleAndDoubleReturnsCorrectResult(ImmutableQuadruple q1, Double factor, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = ImmutableQuadruple.multiply(q1, factor);
+    final String msg = String.format("Multiplying %s by %s resulted in %s; expected %s",
+                                      q1, factor, actual, expected);
+
+    if (actual.isNaN() && expected.isNaN()) { // NaN is never equal to anything, not even another NaN
+      actual = ImmutableQuadruple.ONE;
+      expected = ImmutableQuadruple.ONE;
+    }
+
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
 
 //************************************************************************
 //******  Yet to be tested
 //************************************************************************
-//
-//  public ImmutableQuadruple multiply(ImmutableQuadruple factor) {
-//  public ImmutableQuadruple multiply(long factor) {
-//  public ImmutableQuadruple multiply(double factor) {
-//  public static ImmutableQuadruple multiply(ImmutableQuadruple factor1, ImmutableQuadruple factor2) {
-//  public static ImmutableQuadruple multiply(ImmutableQuadruple factor1, long factor2) {
-//  public static ImmutableQuadruple multiply(ImmutableQuadruple factor1, double factor2) {
 //
 //  public ImmutableQuadruple divide(ImmutableQuadruple divisor) {
 //  public ImmutableQuadruple divide(long divisor) {

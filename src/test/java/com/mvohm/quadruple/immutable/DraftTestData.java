@@ -300,6 +300,24 @@ public class DraftTestData {
     return result;
   }
 
+  public static Object[][] toMultiplyImmutableQuadruple() {
+    final Object[][] result = combineQuadruples();
+    supplementWithQuadQuadOperationResults(result, DraftTestData::expectedQuadQuadMultiplicationResult);
+    return result;
+  }
+
+  public static Object[][] toMultiplyLong() {
+    final Object[][] result = combineQuadruplesWithLongs();
+    supplementWithQuadLongOperationResults(result, DraftTestData::expectedQuadLongMultiplicationResult);
+    return result;
+  }
+
+  public static Object[][] toMultiplyDouble() {
+    final Object[][] result = combineQuadruplesWithDoubles();
+    supplementWithQuadDoubleOperationResults(result, DraftTestData::expectedQuadDoubleMultiplicationResult);
+    return result;
+  }
+
   //###########################################################
   // Private helper methods
 
@@ -704,6 +722,123 @@ public class DraftTestData {
 
     final BigDecimal sum = bd1.subtract(bd2, MC_120);
     return new ImmutableQuadruple(sum);
+  }
+
+  private static ImmutableQuadruple expectedQuadQuadMultiplicationResult(ImmutableQuadruple q1, ImmutableQuadruple q2) {
+    // Corner cases
+    if (q1.isNaN() || q2.isNaN()) {
+      return ImmutableQuadruple.NaN;      // NaN * anything = NaN
+    }
+
+    if (q1.isInfinite()) {
+      if (q2.isZero()) {
+        return ImmutableQuadruple.NaN;     // Infinity * 0 = NaN
+      }
+      if (q1.isNegative() == q2.isNegative()) {           // (+/-)Infinity * x =
+        return ImmutableQuadruple.POSITIVE_INFINITY;      //   Infinity, if the signs are the same
+      } else {
+        return ImmutableQuadruple.NEGATIVE_INFINITY;      //   -Infinity, if the signs are different
+      }
+    }
+
+    if (q2.isInfinite()) {
+      if (q1.isZero()) {
+        return ImmutableQuadruple.NaN;    // Infinity * 0 = NaN
+      }
+      if (q1.isNegative() == q2.isNegative()) {
+        return ImmutableQuadruple.POSITIVE_INFINITY;
+      } else {
+        return ImmutableQuadruple.NEGATIVE_INFINITY;
+      }
+    }
+
+    // Regular numeric values
+    final BigDecimal bd1 = q1.bigDecimalValue();
+    final BigDecimal bd2 = q2.bigDecimalValue();
+    final BigDecimal product = bd1.multiply(bd2, MC_120);
+    final ImmutableQuadruple result = new ImmutableQuadruple(product);
+
+    // If the signs are different, the result is negative, even if it's 0
+    if (result.isZero() && (q1.isNegative() != q2.isNegative())) {
+      return new ImmutableQuadruple("-0");
+    }
+    return result;
+  }
+
+  private static ImmutableQuadruple expectedQuadLongMultiplicationResult(ImmutableQuadruple q1, Long longFactor) {
+    // Corner cases
+    if (q1.isNaN()) {
+      return ImmutableQuadruple.NaN;      // NaN * anything = NaN
+    }
+
+    if (q1.isInfinite()) {
+      if (longFactor == 0) {
+        return ImmutableQuadruple.NaN;    // Infinity * 0 = NaN
+      }
+      if (q1.isNegative() == (longFactor < 0)) {
+        return ImmutableQuadruple.POSITIVE_INFINITY;
+      } else {
+        return ImmutableQuadruple.NEGATIVE_INFINITY;
+      }
+    }
+
+    // Regular numeric values
+    final BigDecimal bd1 = q1.bigDecimalValue();
+    final BigDecimal bd2 = BigDecimal.valueOf(longFactor);
+    final BigDecimal product = bd1.multiply(bd2, MC_120);
+    final ImmutableQuadruple result = new ImmutableQuadruple(product);
+    // If the signs are different, the result is negative, even if it's 0
+    if (result.isZero() && (q1.isNegative() != (longFactor < 0))) {
+      return new ImmutableQuadruple("-0");
+    }
+    return new ImmutableQuadruple(product);
+  }
+
+  private static ImmutableQuadruple expectedQuadDoubleMultiplicationResult(ImmutableQuadruple q1, Double doubleFactor) {
+    // Corner cases
+    if (q1.isNaN() || doubleFactor.isNaN()) {
+      return ImmutableQuadruple.NaN;      // NaN * anything = NaN
+    }
+
+    if (q1.isInfinite()) {
+      if (doubleFactor == 0) {
+        return ImmutableQuadruple.NaN;     // Infinity * 0 = NaN
+      }
+      if (q1.isNegative() == (doubleFactor < 0)) {           // (+/-)Infinity * x =
+        return ImmutableQuadruple.POSITIVE_INFINITY;      //   Infinity if the signs are the same
+      } else {
+        return ImmutableQuadruple.NEGATIVE_INFINITY;      //   -Infinity, if the signs are different
+      }
+    }
+
+    if (doubleFactor.isInfinite()) {
+      if (q1.isZero()) {
+        return ImmutableQuadruple.NaN;    // Infinity * 0 = NaN
+      }
+      if (q1.isNegative() == (doubleFactor < 0)) {
+        return ImmutableQuadruple.POSITIVE_INFINITY;
+      } else {
+        return ImmutableQuadruple.NEGATIVE_INFINITY;
+      }
+    }
+
+
+    // Regular numeric values
+    final BigDecimal bd1 = q1.bigDecimalValue();
+
+    // final BigDecimal bd2 = BigDecimal.valueOf(doubleSummand);
+    /* We expect the addition to use not the string representation (rounded),
+     * but the exact value of the Double summand (which in general cannot be
+     * expressed exactly as a finite decimal number).     */
+    final BigDecimal bd2 = new BigDecimal(doubleFactor, MC_120);
+
+    final BigDecimal product = bd1.multiply(bd2, MC_120);
+    final ImmutableQuadruple result = new ImmutableQuadruple(product);
+    // If the signs are different, the result is negative, even if it's 0
+    if (result.isZero() && (q1.isNegative() != (doubleFactor < 0))) {
+      return new ImmutableQuadruple("-0");
+    }
+    return new ImmutableQuadruple(product);
   }
 
 }
