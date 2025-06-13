@@ -15,6 +15,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import static com.mvohm.quadruple.immutable.test.AuxMethods.*;
@@ -32,7 +33,21 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class DraftTests {
 
-// @Disabled
+  private static final int RAND_ARRAY_SIZE = 10_000_000;
+  private static final double PERMITTED_DUPLICATES_PER_1M = 200;    // Allow 200 duplicates for 1M hashes of random values
+  private static final double PERMITTED_HASH_UNIFORMITY = 0.982;    // for RAND_ARRAY_SIZE == 10_000_000,
+  private static final double PERMITTED_RANDOM_UNIFORMITY = 0.969;  // for RAND_ARRAY_SIZE == 10_000_000,
+                                                                    // lesser sizes would need lesser thresholds
+  private static final int RANDOM_SEQUENCES_TO_TEST = 1_000;        // To test that randoms with equal seeds produce equal sequences
+
+  private static final double MILLION = 1e6;
+
+  // (sqrt(x))^2 may differ from x by 1 in the least significant bit of the mantissa
+  private static final double SQR_ERROR_THRESHOLD = 2.94e-39; // 1.47e-39 * 2;
+  private static final MathContext MC_80 = new MathContext(80, RoundingMode.HALF_EVEN);
+
+
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toConvertFromDoubleData")
   @DisplayName("Constructor ImmutableQuadruple(double dValue) creates an instanse with value equal to dValue")
@@ -45,7 +60,7 @@ public class DraftTests {
         isEqualTo(expected);
   }
 
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toConvertFromLongData")
   @DisplayName("Constructor ImmutableQuadruple(long lValue) creates an instanse with value equal to lValue")
@@ -58,7 +73,7 @@ public class DraftTests {
         isEqualTo(expected);
   }
 
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toConvertFromStringData")
   @DisplayName("Constructor ImmutableQuadruple(String sValue) creates an instanse with value equal to sValue")
@@ -74,7 +89,7 @@ public class DraftTests {
     assertThat(areOK).withFailMessage(msg).isTrue();
   }
 
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toConvertFromBigDecimal")
   @DisplayName("Constructor ImmutableQuadruple(BigDecimal bdValue) creates an instanse with value equal to bdValue")
@@ -90,7 +105,7 @@ public class DraftTests {
     assertThat(areOK).withFailMessage(msg).isTrue();
   }
 
-// @Disabled
+//  @Disabled
   @Test
   @DisplayName("Constructor ImmutableQuadruple() creates an instanse with value of 0")
   void testConstructorWithoutParamsCreatesZeroValue()  {
@@ -105,7 +120,7 @@ public class DraftTests {
   }
 
 // Testing public int compareTo(ImmutableQuadruple other) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareImmQuadruples")
   @DisplayName("compareTo(ImmutableQuadruple other) returns correct results")
@@ -119,7 +134,7 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareQuadruplesWithLongs")
   @DisplayName("compareTo(long other) returns correct results")
@@ -133,7 +148,7 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareQuadruplesWithDoubles")
   @DisplayName("compareTo(double other) returns correct results")
@@ -147,7 +162,7 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toTestEquality")
   @DisplayName("equals(Object obj) returns correct results")
@@ -161,7 +176,7 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#qOperands")
   @DisplayName("hashCode() returns equal results for equal values")
@@ -177,17 +192,12 @@ public class DraftTests {
     assertThat(hash1).withFailMessage(msg).isEqualTo(hash2);
   }
 
-  static private final double PERMITTED_DUPLICATES_PER_1M = 200;
-  static private final double PERMITTED_UNIFORMITY = 0.85; // RAND_ARRAY_SIZE should not be less than 2_000
-  private static final int RAND_ARRAY_SIZE = 1_000_000;
-  private static final int RAND_SEED = 12345;
-  private static final double MILLION = 1e6;
-
-// @Disabled
+//  @Disabled
   @Test
   @DisplayName("hashCode() produces reasonable distribution for random values")
   void testHashCodeDistributionForRandomValues()  {
-    final List<ImmutableQuadruple> testData = DraftTestData.randomValues(RAND_ARRAY_SIZE, RAND_SEED);
+    final int randSeed = new Random().nextInt();
+    final List<ImmutableQuadruple> testData = DraftTestData.randomValues(RAND_ARRAY_SIZE, randSeed);
     final int[] hashCodes = new int[testData.size()];
     for (int i = 0; i < testData.size(); i++) {
       hashCodes[i] = testData.get(i).hashCode();
@@ -210,15 +220,15 @@ public class DraftTests {
     if (duplicates > permittedDuplicates) {
       say(msg1);
     }
-    if (uniformity < PERMITTED_UNIFORMITY) {
+    if (uniformity < PERMITTED_HASH_UNIFORMITY) {
       say(msg2);
     }
 
     assertThat((double)duplicates).withFailMessage(msg1).isLessThanOrEqualTo(permittedDuplicates);
-    assertThat(uniformity).withFailMessage(msg2).isGreaterThanOrEqualTo(PERMITTED_UNIFORMITY);
+    assertThat(uniformity).withFailMessage(msg2).isGreaterThanOrEqualTo(PERMITTED_HASH_UNIFORMITY);
   }
 
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#adjacentPairs")
   @DisplayName("hashCode() returns different results for values ​​that differ in only one bit ")
@@ -234,7 +244,7 @@ public class DraftTests {
     assertThat(hash1).withFailMessage(msg).isNotEqualTo(hash2);
   }
 
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareImmQuadruples")
   @DisplayName("compare(q1, q2) returns correct value")
@@ -248,7 +258,7 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareMagnitudes")
   @DisplayName("compareMagnitudeTo(q1) returns correct value")
@@ -262,7 +272,7 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toCompareMagnitudes")
   @DisplayName("compareMagnitudes(q1, q2) returns correct value")
@@ -276,7 +286,7 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toFindMax")
   @DisplayName("max(q1, q2) returns correct value")
@@ -290,7 +300,7 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toFindMin")
   @DisplayName("min(q1, q2) returns correct value")
@@ -305,7 +315,7 @@ public class DraftTests {
   }
 
 //  public ImmutableQuadruple add(ImmutableQuadruple summand) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toAddImmutableQuadruple")
   @DisplayName("q1.add(q2) returns correct value")
@@ -326,7 +336,7 @@ public class DraftTests {
   }
 
 //  public ImmutableQuadruple  add(long summand) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toAddLong")
   @DisplayName("q.add(Long l) returns correct value")
@@ -347,7 +357,7 @@ public class DraftTests {
   }
 
 //  public ImmutableQuadruple  add(double summand) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toAddDouble")
   @DisplayName("q.add(Double dl) returns correct value")
@@ -368,7 +378,7 @@ public class DraftTests {
   }
 
 //  public static ImmutableQuadruple add(ImmutableQuadruple op1, ImmutableQuadruple op2) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toAddImmutableQuadruple")
   @DisplayName("ImmutableQuadruple.add(q1, q2) returns correct value")
@@ -389,7 +399,7 @@ public class DraftTests {
   }
 
 //  public static ImmutableQuadruple add(ImmutableQuadruple op1, long op2) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toAddLong")
   @DisplayName("ImmutableQuadruple.add(q1, Long l) returns correct value")
@@ -410,7 +420,7 @@ public class DraftTests {
   }
 
 //  public static ImmutableQuadruple add(ImmutableQuadruple op1, double op2) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toAddDouble")
   @DisplayName("ImmutableQuadruple.add(q1, Double dl) returns correct value")
@@ -430,9 +440,8 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-
 //  public ImmutableQuadruple subtract(ImmutableQuadruple subtrahend) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractImmutableQuadruple")
   @DisplayName("q1.subtract(q2) returns correct value")
@@ -453,7 +462,7 @@ public class DraftTests {
   }
 
 //  public ImmutableQuadruple subtract(long subtrahend) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractLong")
   @DisplayName("q.subtract(Long l) returns correct value")
@@ -474,7 +483,7 @@ public class DraftTests {
   }
 
 // public ImmutableQuadruple subtract(double subtrahend) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractDouble")
   @DisplayName("q.subtract(Double dl) returns correct value")
@@ -495,7 +504,7 @@ public class DraftTests {
   }
 
 // public static ImmutableQuadruple subtract(ImmutableQuadruple minuend, ImmutableQuadruple subtrahend) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractImmutableQuadruple")
   @DisplayName("ImmutableQuadruple.subtract(q1, q2) returns correct value")
@@ -516,7 +525,7 @@ public class DraftTests {
   }
 
 // public static ImmutableQuadruple subtract(ImmutableQuadruple minuend, long subtrahend) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractLong")
   @DisplayName("ImmutableQuadruple.subtract(q1, Long l) returns correct value")
@@ -537,7 +546,7 @@ public class DraftTests {
   }
 
 // public static ImmutableQuadruple subtract(ImmutableQuadruple minuend, double subtrahend) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toSubtractDouble")
   @DisplayName("ImmutableQuadruple.subtract(q1, Double dl) returns correct value")
@@ -558,7 +567,7 @@ public class DraftTests {
   }
 
 // public ImmutableQuadruple multiply(ImmutableQuadruple factor) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toMultiplyImmutableQuadruple")
   @DisplayName("q1.multiply(q2) returns correct value")
@@ -579,7 +588,7 @@ public class DraftTests {
   }
 
 // public ImmutableQuadruple multiply(long factor) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toMultiplyLong")
   @DisplayName("q.multiply(Long l) returns correct value")
@@ -600,7 +609,7 @@ public class DraftTests {
   }
 
 // public ImmutableQuadruple multiply(double factor) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toMultiplyDouble")
   @DisplayName("q.multiply(Double d) returns correct value")
@@ -621,7 +630,7 @@ public class DraftTests {
   }
 
 // public static ImmutableQuadruple multiply(ImmutableQuadruple factor1, ImmutableQuadruple factor2) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toMultiplyImmutableQuadruple")
   @DisplayName("ImmutableQuadruple.multiply(q1, q2) returns correct value")
@@ -642,7 +651,7 @@ public class DraftTests {
   }
 
 // public static ImmutableQuadruple multiply(ImmutableQuadruple factor1, long factor2) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toMultiplyLong")
   @DisplayName("ImmutableQuadruple.multiply(q1, Long l) returns correct value")
@@ -663,7 +672,7 @@ public class DraftTests {
   }
 
 // public static ImmutableQuadruple multiply(ImmutableQuadruple factor1, double factor2) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toMultiplyDouble")
   @DisplayName("ImmutableQuadruple.multiply(q1, Double d) returns correct value")
@@ -684,7 +693,7 @@ public class DraftTests {
   }
 
 // public ImmutableQuadruple divide(ImmutableQuadruple divisor) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toDivideImmutableQuadruple")
   @DisplayName("q1.divide(q2) returns correct value")
@@ -705,7 +714,7 @@ public class DraftTests {
   }
 
 // public ImmutableQuadruple divide(long divisor) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toDivideLong")
   @DisplayName("q.divide(Long l) returns correct value")
@@ -726,7 +735,7 @@ public class DraftTests {
   }
 
 // public ImmutableQuadruple divide(double divisor) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toDivideDouble")
   @DisplayName("q.divide(Double d) returns correct value")
@@ -747,7 +756,7 @@ public class DraftTests {
   }
 
 // public static ImmutableQuadruple divide(ImmutableQuadruple dividend, ImmutableQuadruple divisor) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toDivideImmutableQuadruple")
   @DisplayName("ImmutableQuadruple.divide(q1, q2) returns correct value")
@@ -768,7 +777,7 @@ public class DraftTests {
   }
 
 // public static ImmutableQuadruple divide(ImmutableQuadruple dividend, long divisor) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toDivideLong")
   @DisplayName("ImmutableQuadruple.divide(q1, Long l) returns correct value")
@@ -789,7 +798,7 @@ public class DraftTests {
   }
 
 // public static ImmutableQuadruple divide(ImmutableQuadruple dividend, double divisor) {
-// @Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toDivideDouble")
   @DisplayName("ImmutableQuadruple.divide(q1, Double d) returns correct value")
@@ -808,10 +817,6 @@ public class DraftTests {
     }
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
-
-  // (sqrt(x))^2 may differ from x by 1 in the least significant bit of the mantissa
-  private static final double SQR_ERROR_THRESHOLD = 2.94e-39; // 1.47e-39 * 2;
-  private static final MathContext MC_80 = new MathContext(80, RoundingMode.HALF_EVEN);
 
 //public ImmutableQuadruple sqrt() {
 //  @Disabled
@@ -848,7 +853,7 @@ public class DraftTests {
   }
 
 //public ImmutableQuadruple sqrt() {
-//@Disabled
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#qOperands")
   @DisplayName("ImmutableQuadruple.sqrt(ImmutableQuadruple q) returns correct value")
@@ -882,6 +887,7 @@ public class DraftTests {
   }
 
 //public ImmutableQuadruple negate() {
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toTestNegate")
   @DisplayName("q.negate() returns correct value")
@@ -899,6 +905,7 @@ public class DraftTests {
   }
 
 //public ImmutableQuadruple abs() {
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toTestAbs")
   @DisplayName("q.abs() returns correct value")
@@ -916,6 +923,7 @@ public class DraftTests {
   }
 
 //public int signum() {
+//  @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toTestSignum")
   @DisplayName("q.abs() returns correct value")
@@ -928,12 +936,72 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
-//************************************************************************
-//******  Yet to be tested
-//************************************************************************
-//
-//  public static ImmutableQuadruple nextRandom() {
+//public static ImmutableQuadruple nextRandom() {
+//  @Disabled
+  @Test
+  @DisplayName("nextRandom returns something at least more or less random")
+  void testNextRandomRetunsSomethingRandom() {
+    final ImmutableQuadruple[] randoms = new ImmutableQuadruple[RAND_ARRAY_SIZE];
+    for (int i = 0; i < RAND_ARRAY_SIZE; i++) {
+      randoms[i] = ImmutableQuadruple.nextRandom();
+    }
+    final double actualUniformity = estimateDistribution(randoms);
+    final String msg = String.format("Actual dispersion of random numbers %s, worse than expected %s",
+                                actualUniformity, PERMITTED_RANDOM_UNIFORMITY);
+    if (actualUniformity <= PERMITTED_RANDOM_UNIFORMITY) {
+      say(msg);
+    }
+    assertThat(actualUniformity).withFailMessage(msg).isGreaterThan(PERMITTED_RANDOM_UNIFORMITY);
+  }
+
 //  public static ImmutableQuadruple nextRandom(Random rand) {
+// @Disabled
+  @Test
+  @DisplayName("nextRandom(int randSeed) returns equal sequences for equal seeds")
+  void testNextRandomWithSeedRetunsEqualSequencesForEqualSeed() {
+    final int[] seeds = new int[RANDOM_SEQUENCES_TO_TEST];
+    final ImmutableQuadruple[][][] randomSequences = new ImmutableQuadruple[RANDOM_SEQUENCES_TO_TEST][RANDOM_SEQUENCES_TO_TEST][2];
+    final Random random = new Random();
+
+    // Fill the seeds
+    for (int i = 0; i < RANDOM_SEQUENCES_TO_TEST; i++) {
+      seeds[i] = random.nextInt();
+    }
+
+    // 1st set of sequences
+    for (int i = 0; i < RANDOM_SEQUENCES_TO_TEST; i++) {
+      final Random rand = new Random(seeds[i]);
+      for (int j = 0; j < RANDOM_SEQUENCES_TO_TEST; j++) {  // Generate a sequence with the given seed
+        randomSequences[i][j][0] = ImmutableQuadruple.nextRandom(rand);
+      }
+    }
+
+    // 2nd set of sequences
+    for (int i = 0; i < RANDOM_SEQUENCES_TO_TEST; i++) {
+      final Random rand = new Random(seeds[i]);             // Same seed as for the 1st set
+      for (int j = 0; j < RANDOM_SEQUENCES_TO_TEST; j++) {  // Generate a sequence with the given seed
+        randomSequences[i][j][1] = ImmutableQuadruple.nextRandom(rand); // Expect it to be equal to seq[i][j][0]
+      }
+    }
+
+    boolean sequencesAreEqual = true;
+
+  OUTER:
+    for (int i = 0; i < RANDOM_SEQUENCES_TO_TEST; i++) {
+      for (int j = 0; j < RANDOM_SEQUENCES_TO_TEST; j++) {
+        if (!randomSequences[i][j][0].equals(randomSequences[i][j][1])) {
+          sequencesAreEqual = false;
+          break OUTER;
+        }
+      }
+    }
+
+    final String msg = "Random sequences made of the same seed are different";
+    if (!sequencesAreEqual) {
+      say(msg);
+    }
+    assertThat(sequencesAreEqual).withFailMessage(msg).isTrue();
+  }
 
 //#######################################################################################
 //### Private helper methods
@@ -985,128 +1053,29 @@ public class DraftTests {
     return duplicates + uniformity;
   }
 
-//#######################################################################################
-//### Various debugging stuff (to be moved to another class, if needed at all)
-//#######################################################################################
+  private static double estimateDistribution(ImmutableQuadruple[] values) {
+    // Roughly estimate uniformity by putting values into "buckets"
+    final int rows = 100, cols = 100;
+    final int[][] counts = new int[cols][rows];
+    final int length = values.length;
+    final int samplesPerColumn = length / cols;
+    for (int i = 0; i < values.length; i++) {
+      final int col = i / samplesPerColumn;
+      final int row = values[i].multiply(rows).intValue();
+      counts[col][row]++;
+    }
 
-  private static void showLSBs() {
-    // make sure that the first two numbers are indistinguishable;
-    // and the third one differs from them by the least significant bit of the mantissa
-    final ImmutableQuadruple q1 = new ImmutableQuadruple(DraftTestData.SOME_NUMBER);         //  17
-    final ImmutableQuadruple q2 = new ImmutableQuadruple(new BigDecimal(DraftTestData.SOME_NUMBER). // Non-distinguishable from the previous
-                            multiply(BigDecimal.ONE.add(new BigDecimal(1.2e-39), MC_50), MC_50));   //  less than the unit of LSB
-    final ImmutableQuadruple q3 = new ImmutableQuadruple(new BigDecimal(DraftTestData.SOME_NUMBER). // Distinguishable from the previous
-                            multiply(BigDecimal.ONE.add(new BigDecimal(1.8e-39), MC_50), MC_50));   // greater than the unit of LSB
-
-//    q1 = new ImmutableQuadruple(BigDecimal.ONE.add(new BigDecimal(1.5e-39), MC_50));
-//    q2 = ImmutableQuadruple.MIN_VALUE;
-//    q3 = ImmutableQuadruple.MAX_VALUE;
-    say("q1: %52s (%s)", q1, hexStringOf(q1));
-    say("q2: %52s (%s)", q2, hexStringOf(q2));
-    say("q3: %52s (%s)", q3, hexStringOf(q3));
-  }
-
-  private static void compareImmQuadNaNtoNaN() {
-    say("Expect two indistinguisahable and one distinct");
-    say("compare ImmQuad NaN to NaN");
-    final ImmutableQuadruple d1 = new ImmutableQuadruple(Double.NaN);
-    final ImmutableQuadruple d2 = new ImmutableQuadruple(Double.NaN);
-    say("Equal:   " + (d1.equals(d2)));
-    say("Compare: " + ImmutableQuadruple.compare(d1, d2));
-  }
-
-  private static void compareDoubleNaNtoNaN() {
-    say("compare Double NaN to NaN");
-    final Double d1 = Double.NaN;
-    final Double d2 = Double.NaN;
-    say("Equal:   " + (d1.equals(d2)));       // Wrapper types are considered equal
-    say("Compare: " + Double.compare(d1, d2));
-    say("Primitives:");
-    final double d1_ = d1.doubleValue();
-    final double d2_ = d2.doubleValue();
-    say("Equal:   " + (d1_ == d2_));            // Primitive types are considered different ...
-    say("Compare: " + Double.compare(d1, d2));
-  }
-
-  // Positive infinity < NaN ???? Yes! NaN is greater than anything else
-  private static void compareImmQuadNanInfinity() {
-    say("compare ImmQuad Nan Infinity");
-    final ImmutableQuadruple d1 = new ImmutableQuadruple(Double.NaN);
-    final ImmutableQuadruple d2 = new ImmutableQuadruple(Double.POSITIVE_INFINITY);
-    say("Equal:   " + (d1.equals(d2)));
-    say("Compare: " + ImmutableQuadruple.compare(d1, d2));
-  }
-
-  private static void compareDoubleNanInfinity() {
-    say("compare Double Nan to Infinity");
-    final Double d1 = Double.NaN;
-    final Double d2 = Double.POSITIVE_INFINITY;
-    say("Equal:   " + (d1.equals(d2)));
-    say("Compare: " + Double.compare(d1, d2));
-  }
-
-  private static void compareDoubleSignedZeros() {
-    final Double d1 = 0.0;
-    final Double d2 = -0.0;
-
-    say("Compare %s with %s: %s", d1, d1, Double.compare(d1, d1) );
-    say("Compare %s with %s: %s", d1, d2, Double.compare(d1, d2) );
-    say("Compare %s with %s: %s", d2, d1, Double.compare(d2, d1) );
-    say("Compare %s with %s: %s", d2, d2, Double.compare(d2, d2) );
-
-    say("--");
-    say("Equals, %s with %s: %s", d1, d1, d1.equals(d1) );
-    say("Equals, %s with %s: %s", d1, d2, d1.equals(d2) );
-    say("Equals, %s with %s: %s", d2, d1, d2.equals(d1));
-    say("Equals, %s with %s: %s", d2, d2, d2.equals(d2));
-
-//    say("--");
-//    say("%s == %s = %s", d1, d1, d1.doubleValue() == d1.doubleValue());
-//    say("%s > %s = %s", d1, d1, d1.doubleValue() > d1.doubleValue());
-//    say("%s < %s = %s", d1, d1, d1.doubleValue() < d1.doubleValue());
-//    say("--");
-//    say("%s == %s = %s", d1, d2, d1.doubleValue() == d2.doubleValue());
-//    say("%s > %s = %s", d1, d2, d1.doubleValue() > d2.doubleValue());
-//    say("%s < %s = %s", d1, d2, d1.doubleValue() < d2.doubleValue());
-//    say("--");
-//    say("%s == %s = %s", d2, d1, d2.doubleValue() == d1.doubleValue());
-//    say("%s > %s = %s", d2, d1, d2.doubleValue() > d1.doubleValue());
-//    say("%s < %s = %s", d2, d1, d2.doubleValue() < d1.doubleValue());
-//    say("--");
-//    say("%s == %s = %s", d2, d2, d2.doubleValue() == d2.doubleValue());
-//    say("%s > %s = %s", d2, d2, d2.doubleValue() > d2.doubleValue());
-//    say("%s < %s = %s", d2, d2, d2.doubleValue() < d2.doubleValue());
-
-    say("--");
-    say("%s == %s = %s", d1, d1, d1 == 0);
-    say("%s > %s = %s", d1, d1, d1 > 0);
-    say("%s < %s = %s", d1, d1, d1 < 0);
-    say("--");
-    say("%s == %s = %s", d1, d2, d1 == -0.0);
-    say("%s > %s = %s", d1, d2, d1 > -0.0);
-    say("%s < %s = %s", d1, d2, d1 < -0.0);
-    say("--");
-    say("%s == %s = %s", d2, d1, d2  == 0);
-    say("%s > %s = %s", d2, d1, d2 > 0);
-    say("%s < %s = %s", d2, d1, d2 < 0);
-    say("--");
-    say("%s == %s = %s", d2, d2, d2 == -0.0);
-    say("%s > %s = %s", d2, d2, d2 > -0.0);
-    say("%s < %s = %s", d2, d2, d2 < -0.0);
-  }
-
-
-  public static void main(String... args) {
-//    compareImmQuadNaNtoNaN();
-//    say();
-//    compareImmQuadNanInfinity();
-//    say();
-//    compareDoubleNaNtoNaN();
-//    say();
-//    compareDoubleNanInfinity();
-//    say();
-//    showLSBs();
-    compareDoubleSignedZeros();
+    // Calculate standard relative deviations
+    final double expected = (double)length / (cols * rows);
+    double variance = 0;
+    for (int col = 0; col < cols; col++) {
+      for (int row = 0; row < rows; row++) {
+        variance += Math.pow((counts[col][row] - expected)/expected, 2);
+      }
+    }
+    variance /= cols * rows;
+    final double stddev = Math.sqrt(variance);
+    return 1.0 / (1.0 + stddev); // Normalize
   }
 
 }
