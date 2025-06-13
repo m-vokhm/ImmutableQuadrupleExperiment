@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import com.mvohm.quadruple.ImmutableQuadruple;
 
@@ -117,7 +118,8 @@ public class DraftTestData {
     new ImmutableQuadruple("-3333.333333333333333333330000000000000000e+00"),
     new ImmutableQuadruple("-12345678.90123456789000000000000000000000e+00"),
     new ImmutableQuadruple("-33333333.33333333333333330000000000000000e+00"),
-    new ImmutableQuadruple( "0"),
+    new ImmutableQuadruple( "0.0"),
+    new ImmutableQuadruple( "-0.0"),
     new ImmutableQuadruple(" 1.234567890123456789000000000000000000000e+37"),
     new ImmutableQuadruple( "3.333333333333333333333330000000000000000e+37"),
     new ImmutableQuadruple("-1.234567890123456789000000000000000000000e+37"),
@@ -336,6 +338,24 @@ public class DraftTestData {
     return result;
   }
 
+  public static Object[][] toTestNegate() {
+    final Object[] testData = qOperands();
+    final Object[][] result = supplementWithQuadrupleOperationResults(testData, DraftTestData::expectedNegationResult);
+    return result;
+  }
+
+  public static Object[][] toTestAbs() {
+    final Object[] testData = qOperands();
+    final Object[][] result = supplementWithQuadrupleOperationResults(testData, DraftTestData::expectedAbsResult);
+    return result;
+  }
+
+  public static Object[][] toTestSignum() {
+    final Object[] testData = qOperands();
+    final Object[][] result = supplementWithQuadrupleOperationResults(testData, DraftTestData::expectedSignumResult);
+    return result;
+  }
+
   //###########################################################
   // Private helper methods
 
@@ -396,6 +416,19 @@ public class DraftTestData {
     for (final Object[] dataSample: result) {
       dataSample[2] = biFunction.apply((ImmutableQuadruple)dataSample[0], (Double)dataSample[1]);
     }
+  }
+
+  private static Object[][] supplementWithQuadrupleOperationResults(Object[] sourceData,
+      Function<ImmutableQuadruple, Object> function) {
+    final int length = sourceData.length;
+    final Object[][] result = new Object[length][];
+    for (int i = 0; i < length; i++) {
+      final Object[] resultItem = new Object[] {
+          sourceData[i], function.apply((ImmutableQuadruple)sourceData[i]),
+      };
+      result[i] = resultItem;
+    }
+    return result;
   }
 
   private static List<ImmutableQuadruple> adjacentValues() {
@@ -536,6 +569,14 @@ public class DraftTestData {
       return -1;
     } else if (q2.isInfinite() && q2.isNegative()) {
       return 1;
+    } else if (q1.isZero() && q2.isZero()) {
+      if (q1.isNegative() && !q2.isNegative()) {
+        return -1;
+      } else if (!q1.isNegative() && q2.isNegative()) {
+        return 1;
+      } else {
+        return 0;
+      }
     }
 
     final BigDecimal bd1 = new BigDecimal(q1.toString());
@@ -550,6 +591,8 @@ public class DraftTestData {
       return 1;   // Infinity greater than anything except Infinity
     } else if (q1.isInfinite() && q1.isNegative()) { // None is neither NaN nor +Infinity
       return -1;
+    } else if (q1.isZero() && q1.isNegative() && q2.longValue() == 0) {
+      return -1;
     }
 
     final BigDecimal bd1 = new BigDecimal(q1.toString());
@@ -557,36 +600,42 @@ public class DraftTestData {
     return bd1.compareTo(bd2);
   }
 
-  private static int expectedComparisonWithDoubleResult(ImmutableQuadruple q1, Double q2) {
+  private static int expectedComparisonWithDoubleResult(ImmutableQuadruple q1, Double d2) {
     if (q1.isNaN()) {
-      if (Double.isNaN(q2)) {
+      if (Double.isNaN(d2)) {
         return 0;
       } else {
         return 1;
       }
-    } else if (Double.isNaN(q2)) {
+    } else if (Double.isNaN(d2)) {
       return -1;
     } else if (q1.isInfinite() && !q1.isNegative()) { // None is NaN, +Infinity?
-      if (q2 == Double.POSITIVE_INFINITY) {
+      if (d2 == Double.POSITIVE_INFINITY) {
         return 0;
       } else {
         return 1;   // Infinity is greater than anything except Infinity
       }
     } else if (q1.isInfinite() && q1.isNegative()) { // None is neither NaN nor +Infinity
-      if (q2 == Double.NEGATIVE_INFINITY) {
+      if (d2 == Double.NEGATIVE_INFINITY) {
         return 0;
       } else {
         return -1;  // -Infinity is less than anything except -Infinity
       }
-    } else if (q2 == Double.NEGATIVE_INFINITY) {
+    } else if (d2 == Double.NEGATIVE_INFINITY) {
       return 1;
-    } else if (q2 == Double.POSITIVE_INFINITY) {
+    } else if (d2 == Double.POSITIVE_INFINITY) {
       return -1;
+    } else if (q1.isZero() && q1.isNegative() && d2.equals(Double.valueOf(0))) { // -0.0 < 0.0
+      return -1;
+    } else if (q1.isZero() && q1.isNegative() && d2.equals(Double.valueOf(-0.0))) { // 0.0 > -0.0
+      return 1;
+    } else  if (q1.isZero() && d2.doubleValue() == 0) {
+      return 0;
     }
 
     final String s1 = q1.toString();
     final BigDecimal bd1 = new BigDecimal(s1);
-    final BigDecimal bd2 = new BigDecimal(q2, MC_50); // Exact value of the double, up to 50 digits
+    final BigDecimal bd2 = new BigDecimal(d2, MC_50); // Exact value of the double, up to 50 digits
     return bd1.compareTo(bd2);
   }
 
@@ -603,6 +652,10 @@ public class DraftTestData {
     }
 
     if (q2.isInfinite()) return q2;       // x + Infinity = Infinity regardless of their signs
+
+    if (q1.isZero() && q1.isNegative() && q2.isZero() && q2.isNegative()) {
+      return new ImmutableQuadruple(-0.0); // -0.0 + -0.0 = -0.0
+    }
 
     // Regular numeric values
     final BigDecimal bd1 = q1.bigDecimalValue();
@@ -677,6 +730,10 @@ public class DraftTestData {
       }
     }
 
+    if (q1.isZero() && q1.isNegative() && q2.isZero() && !q2.isNegative()) {
+      return new ImmutableQuadruple(-0.0);
+    }
+
     if (q2.isInfinite()) return q2.negate(); // x - Inf = -Inf, x - (-Inf) = +Inf
 
     // Regular numeric values
@@ -694,6 +751,10 @@ public class DraftTestData {
 
     if (q1.isInfinite()) {
       return q1;                     // Infinity - X = Infinity
+    }
+
+    if (q1.isZero() && q1.isNegative() && longSubtrahend == 0) {
+      return new ImmutableQuadruple(-0.0);
     }
 
     // Regular numeric values
@@ -725,6 +786,10 @@ public class DraftTestData {
       } else {
         return ImmutableQuadruple.NEGATIVE_INFINITY; // x - Inf = -Inf
       }
+    }
+
+    if (q1.isZero() && q1.isNegative() && doubleSubtrahend.equals(0.0)) {
+      return new ImmutableQuadruple(-0.0);
     }
 
     // Regular numeric values
@@ -999,6 +1064,23 @@ public class DraftTestData {
       return new ImmutableQuadruple("-0");
     }
     return new ImmutableQuadruple(product);
+  }
+
+  private static ImmutableQuadruple expectedNegationResult(ImmutableQuadruple data) {
+    return ImmutableQuadruple.construct(!data.isNegative(),
+        data.exponent(), data.mantHi(), data.mantLo());
+  }
+
+  private static ImmutableQuadruple expectedAbsResult(ImmutableQuadruple data) {
+    return ImmutableQuadruple.construct(false,
+        data.exponent(), data.mantHi(), data.mantLo());
+  }
+
+  private static Integer expectedSignumResult(ImmutableQuadruple data) {
+    if (data.isZero() && !data.isNegative()) {
+      return 0;
+    }
+    return data.isNegative()? -1 : 1;
   }
 
 }

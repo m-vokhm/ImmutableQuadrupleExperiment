@@ -11,6 +11,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import com.mvohm.quadruple.ImmutableQuadruple;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +20,7 @@ import java.util.Set;
 import static com.mvohm.quadruple.immutable.test.AuxMethods.*;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * A quick and dirty set of tests for ImmutableQuadruple class.
@@ -28,6 +31,7 @@ import static org.assertj.core.api.Assertions.*;
 @TestInstance(Lifecycle.PER_CLASS)
 
 public class DraftTests {
+
 // @Disabled
   @ParameterizedTest
   @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toConvertFromDoubleData")
@@ -36,9 +40,9 @@ public class DraftTests {
     final double expected = data;
     final double actual = new ImmutableQuadruple(data).doubleValue();
 
-    assertThat(expected).
+    assertThat(actual).
         withFailMessage("The double value obtained from ImmutableQuadruple differs from its source value").
-        isEqualTo(actual);
+        isEqualTo(expected);
   }
 
 // @Disabled
@@ -49,9 +53,9 @@ public class DraftTests {
     final long expected = data;
     final long actual = new ImmutableQuadruple(data).longValue();
 
-    assertThat(expected).
+    assertThat(actual).
         withFailMessage("The long value obtained from ImmutableQuadruple differs from its source value").
-        isEqualTo(actual);
+        isEqualTo(expected);
   }
 
 // @Disabled
@@ -805,16 +809,129 @@ public class DraftTests {
     assertThat(actual).withFailMessage(msg).isEqualTo(expected);
   }
 
+  // (sqrt(x))^2 may differ from x by 1 in the least significant bit of the mantissa
+  private static final double SQR_ERROR_THRESHOLD = 2.94e-39; // 1.47e-39 * 2;
+  private static final MathContext MC_80 = new MathContext(80, RoundingMode.HALF_EVEN);
+
+//public ImmutableQuadruple sqrt() {
+//  @Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#qOperands")
+  @DisplayName("ImmutableQuadruple.sqrt() returns correct value")
+  void testSquareRootReturnsCorrectResult(ImmutableQuadruple q1) {
+    final ImmutableQuadruple sqrt = q1.sqrt();
+
+    String expectedSqrStr, actualSqrStr;
+    actualSqrStr  = sqrt.toString();
+    double error = 0;
+    if (q1.isInfinite() || q1.isNaN()) {
+      expectedSqrStr = q1.toString();
+    } else if (q1.isNegative()) {
+      expectedSqrStr = ImmutableQuadruple.NaN.toString();
+    } else if (q1.isZero()) {
+      expectedSqrStr = ImmutableQuadruple.ZERO.toString();
+    } else {
+      final BigDecimal bdSqrt = sqrt.bigDecimalValue();
+      final BigDecimal actualBdSqr = bdSqrt.multiply(bdSqrt, MC_80);
+      final BigDecimal expectedBdSqr = q1.bigDecimalValue();
+      expectedSqrStr = new ImmutableQuadruple(expectedBdSqr).toString();
+      final BigDecimal bdError = expectedBdSqr.subtract(actualBdSqr, MC_80).divide(expectedBdSqr, MC_80);
+      error = bdError.doubleValue();
+    }
+
+    final String msg = String.format("Actual square of found sqrt, \n%s was \n%s, expected to be equal the original value \n%s, error = %s",
+                                      actualSqrStr, expectedSqrStr, q1, error);
+    if (Math.abs(error) > SQR_ERROR_THRESHOLD) {
+      say(msg);
+    }
+    assertThat(error).withFailMessage(msg).isLessThan(SQR_ERROR_THRESHOLD);
+  }
+
+//public ImmutableQuadruple sqrt() {
+//@Disabled
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#qOperands")
+  @DisplayName("ImmutableQuadruple.sqrt(ImmutableQuadruple q) returns correct value")
+  void testStaticSquareRootReturnsCorrectResult(ImmutableQuadruple q1) {
+    final ImmutableQuadruple sqrt = ImmutableQuadruple.sqrt(q1);
+
+    String expectedSqrStr, actualSqrStr;
+    actualSqrStr  = sqrt.toString();
+    double error = 0;
+    if (q1.isInfinite() || q1.isNaN()) {
+      expectedSqrStr = q1.toString();
+    } else if (q1.isNegative()) {
+      expectedSqrStr = ImmutableQuadruple.NaN.toString();
+    } else if (q1.isZero()) {
+      expectedSqrStr = ImmutableQuadruple.ZERO.toString();
+    } else {
+      final BigDecimal bdSqrt = sqrt.bigDecimalValue();
+      final BigDecimal actualBdSqr = bdSqrt.multiply(bdSqrt, MC_80);
+      final BigDecimal expectedBdSqr = q1.bigDecimalValue();
+      expectedSqrStr = new ImmutableQuadruple(expectedBdSqr).toString();
+      final BigDecimal bdError = expectedBdSqr.subtract(actualBdSqr, MC_80).divide(expectedBdSqr, MC_80);
+      error = bdError.doubleValue();
+    }
+
+    final String msg = String.format("Actual square of found sqrt, \n%s was \n%s, expected to be equal the original value \n%s, error = %s",
+                                      actualSqrStr, expectedSqrStr, q1, error);
+    if (Math.abs(error) > SQR_ERROR_THRESHOLD) {
+      say(msg);
+    }
+    assertThat(error).withFailMessage(msg).isLessThan(SQR_ERROR_THRESHOLD);
+  }
+
+//public ImmutableQuadruple negate() {
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toTestNegate")
+  @DisplayName("q.negate() returns correct value")
+  void testNegeteReturnsCorrectResult(ImmutableQuadruple q1, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = q1.negate();
+    final String msg = String.format("Negation of %s gave %s, expected %s", q1, actual, expected);
+    if (actual.isNaN() && expected.isNaN()) {
+      actual = new ImmutableQuadruple(1);
+      expected = new ImmutableQuadruple(1);
+    }
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+//public ImmutableQuadruple abs() {
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toTestAbs")
+  @DisplayName("q.abs() returns correct value")
+  void testAbsReturnsCorrectResult(ImmutableQuadruple q1, ImmutableQuadruple expected) {
+    ImmutableQuadruple actual = q1.abs();
+    final String msg = String.format("abs(%s) gave %s, expected %s", q1, actual, expected);
+    if (actual.isNaN() && expected.isNaN()) {
+      actual = new ImmutableQuadruple(1);
+      expected = new ImmutableQuadruple(1);
+    }
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
+//public int signum() {
+  @ParameterizedTest
+  @MethodSource(value =  "com.mvohm.quadruple.immutable.DraftTestData#toTestSignum")
+  @DisplayName("q.abs() returns correct value")
+  void testSignumReturnsCorrectResult(ImmutableQuadruple q1, int expected) {
+    final Integer actual = q1.signum();
+    final String msg = String.format("signum(%s) gave %s, expected %s", q1, actual, expected);
+    if (!actual.equals(expected)) {
+      say(msg);
+    }
+    assertThat(actual).withFailMessage(msg).isEqualTo(expected);
+  }
+
 //************************************************************************
 //******  Yet to be tested
 //************************************************************************
 //
-//  public ImmutableQuadruple sqrt() {
-//  public static ImmutableQuadruple sqrt(Quadruple square) {
-//
-//  public ImmutableQuadruple negate() {
-//  public ImmutableQuadruple abs() {
-//  public int signum() {
 //  public static ImmutableQuadruple nextRandom() {
 //  public static ImmutableQuadruple nextRandom(Random rand) {
 
@@ -928,16 +1045,68 @@ public class DraftTests {
     say("Compare: " + Double.compare(d1, d2));
   }
 
+  private static void compareDoubleSignedZeros() {
+    final Double d1 = 0.0;
+    final Double d2 = -0.0;
+
+    say("Compare %s with %s: %s", d1, d1, Double.compare(d1, d1) );
+    say("Compare %s with %s: %s", d1, d2, Double.compare(d1, d2) );
+    say("Compare %s with %s: %s", d2, d1, Double.compare(d2, d1) );
+    say("Compare %s with %s: %s", d2, d2, Double.compare(d2, d2) );
+
+    say("--");
+    say("Equals, %s with %s: %s", d1, d1, d1.equals(d1) );
+    say("Equals, %s with %s: %s", d1, d2, d1.equals(d2) );
+    say("Equals, %s with %s: %s", d2, d1, d2.equals(d1));
+    say("Equals, %s with %s: %s", d2, d2, d2.equals(d2));
+
+//    say("--");
+//    say("%s == %s = %s", d1, d1, d1.doubleValue() == d1.doubleValue());
+//    say("%s > %s = %s", d1, d1, d1.doubleValue() > d1.doubleValue());
+//    say("%s < %s = %s", d1, d1, d1.doubleValue() < d1.doubleValue());
+//    say("--");
+//    say("%s == %s = %s", d1, d2, d1.doubleValue() == d2.doubleValue());
+//    say("%s > %s = %s", d1, d2, d1.doubleValue() > d2.doubleValue());
+//    say("%s < %s = %s", d1, d2, d1.doubleValue() < d2.doubleValue());
+//    say("--");
+//    say("%s == %s = %s", d2, d1, d2.doubleValue() == d1.doubleValue());
+//    say("%s > %s = %s", d2, d1, d2.doubleValue() > d1.doubleValue());
+//    say("%s < %s = %s", d2, d1, d2.doubleValue() < d1.doubleValue());
+//    say("--");
+//    say("%s == %s = %s", d2, d2, d2.doubleValue() == d2.doubleValue());
+//    say("%s > %s = %s", d2, d2, d2.doubleValue() > d2.doubleValue());
+//    say("%s < %s = %s", d2, d2, d2.doubleValue() < d2.doubleValue());
+
+    say("--");
+    say("%s == %s = %s", d1, d1, d1 == 0);
+    say("%s > %s = %s", d1, d1, d1 > 0);
+    say("%s < %s = %s", d1, d1, d1 < 0);
+    say("--");
+    say("%s == %s = %s", d1, d2, d1 == -0.0);
+    say("%s > %s = %s", d1, d2, d1 > -0.0);
+    say("%s < %s = %s", d1, d2, d1 < -0.0);
+    say("--");
+    say("%s == %s = %s", d2, d1, d2  == 0);
+    say("%s > %s = %s", d2, d1, d2 > 0);
+    say("%s < %s = %s", d2, d1, d2 < 0);
+    say("--");
+    say("%s == %s = %s", d2, d2, d2 == -0.0);
+    say("%s > %s = %s", d2, d2, d2 > -0.0);
+    say("%s < %s = %s", d2, d2, d2 < -0.0);
+  }
+
+
   public static void main(String... args) {
-    compareImmQuadNaNtoNaN();
-    say();
-    compareImmQuadNanInfinity();
-    say();
-    compareDoubleNaNtoNaN();
-    say();
-    compareDoubleNanInfinity();
-    say();
-    showLSBs();
+//    compareImmQuadNaNtoNaN();
+//    say();
+//    compareImmQuadNanInfinity();
+//    say();
+//    compareDoubleNaNtoNaN();
+//    say();
+//    compareDoubleNanInfinity();
+//    say();
+//    showLSBs();
+    compareDoubleSignedZeros();
   }
 
 }

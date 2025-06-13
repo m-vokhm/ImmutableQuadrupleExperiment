@@ -789,7 +789,7 @@ public class ImmutableQuadruple extends Number implements Comparable<ImmutableQu
    * @param square the value to find the square root of
    * @return a new instance of Quadruple containing the value of the square root of the given argument
    */
-  public static ImmutableQuadruple sqrt(Quadruple square) {
+  public static ImmutableQuadruple sqrt(ImmutableQuadruple square) {
     final ImmutableQuadruple result = new ImmutableQuadruple(square);
     result.value.sqrt();
     return result;
